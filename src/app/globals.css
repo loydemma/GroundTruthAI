@@ -7,8 +7,8 @@
   --color-surface-2: #15181d;
   --color-border: #1f2329;
   --color-fg: #e8eaed;
-  --color-fg-muted: #9aa1ab;
-  --color-fg-faint: #6b7280;
+  --color-fg-muted: #b4bcc8;
+  --color-fg-faint: #8b93a0;
 
   /* accent (brand / interactive only) */
   --color-accent: #22d3ee;
@@ -43,3 +43,28 @@ body {
   50% { opacity: 0.45; }
 }
 .gt-pulse { animation: gt-pulse 1.2s ease-in-out infinite; }
+
+/* hero: emphasized phrase carries the brand glow (signature element) */
+.gt-glow {
+  color: var(--color-accent);
+  text-shadow: 0 0 28px rgba(34, 211, 238, 0.45);
+}
+
+/* soft accent halo behind the hero block */
+.gt-hero {
+  position: relative;
+  isolation: isolate;
+}
+.gt-hero::before {
+  content: "";
+  position: absolute;
+  inset: -48px 0 auto 0;
+  height: 260px;
+  background: radial-gradient(60% 100% at 18% 0%, rgba(34, 211, 238, 0.1), transparent 70%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gt-fade-in, .gt-pulse { animation: none; }
+}
