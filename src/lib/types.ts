@@ -17,6 +17,12 @@ export interface VerifiedClaim extends JudgedClaim {
   flagged: boolean; // routing decision: needs human review
 }
 
+export interface StageMetrics {
+  latencyMs: number;
+  promptTokens: number;
+  completionTokens: number;
+}
+
 export interface RunMetrics {
   totalLatencyMs: number;
   generateLatencyMs: number;
