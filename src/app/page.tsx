@@ -7,13 +7,16 @@ import { ClaimList } from "./components/ClaimList";
 import { TranscriptPane } from "./components/TranscriptPane";
 import { VerdictBanner } from "./components/VerdictBanner";
 import { PipelineStages } from "./components/PipelineStages";
-import type { AnalysisResult, VerifiedClaim } from "@/lib/types";
+import type { AnalysisResult, GeneratedClaim, StageMetrics, VerifiedClaim } from "@/lib/types";
 
 export default function Home() {
   const [transcript, setTranscript] = useState("");
+  const [summary, setSummary] = useState<GeneratedClaim[] | null>(null);
+  const [genStage, setGenStage] = useState<StageMetrics | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [selected, setSelected] = useState<VerifiedClaim | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Lead with the hallucination-bait sample — it's the demo that proves the point.
@@ -23,23 +26,60 @@ export default function Home() {
       Number(a.title.toLowerCase().includes("bait")),
   );
 
-  async function analyze() {
-    setLoading(true);
+  // Editing the call invalidates any summary/result drafted from the old text.
+  function changeTranscript(text: string) {
+    setTranscript(text);
+    setSummary(null);
+    setGenStage(null);
+    setResult(null);
+    setSelected(null);
+    setError(null);
+  }
+
+  // Step 1: the model under test drafts the summary.
+  async function generate() {
+    setGenerating(true);
+    setSummary(null);
+    setGenStage(null);
+    setResult(null);
     setSelected(null);
     setError(null);
     try {
-      const res = await fetch("/api/analyze", {
+      const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ title: "manual", transcript }),
+        body: JSON.stringify({ transcript }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Analysis failed");
+      if (!res.ok) throw new Error(data.error ?? "Could not generate the summary");
+      setSummary(data.claims);
+      setGenStage(data.generate);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not generate the summary");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  // Step 2: judge the summary against the call and verify the evidence.
+  async function check() {
+    if (!summary) return;
+    setChecking(true);
+    setSelected(null);
+    setError(null);
+    try {
+      const res = await fetch("/api/check", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ title: "manual", transcript, claims: summary, generate: genStage }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Could not check the summary");
       setResult(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Analysis failed");
+      setError(e instanceof Error ? e.message : "Could not check the summary");
     } finally {
-      setLoading(false);
+      setChecking(false);
     }
   }
 
@@ -75,7 +115,7 @@ export default function Home() {
         </p>
 
         <ol className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-[var(--color-fg-muted)]">
-          {["Paste or pick a call", "AI writes the summary", "We verify each claim"].map(
+          {["Add a call transcript", "Generate the summary", "Check it against the call"].map(
             (label, i) => (
               <li key={label} className="flex items-center gap-3">
                 {i > 0 && <span aria-hidden className="text-[var(--color-fg-faint)]">→</span>}
@@ -92,12 +132,12 @@ export default function Home() {
       <div className="mt-7 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 sm:p-5">
         <div>
           <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-fg-muted)]">
-            Try a sample
+            <span className="text-[var(--color-accent)]">1</span> · Add a call transcript
           </span>
           <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
-            Pick a call and hit Analyze. Start with the hallucination-bait call: it&apos;s vague
-            enough that the AI tends to overstate it, so you can watch the checker catch the
-            invented claim.
+            Paste a transcript in the box below, or pick a sample to start. The hallucination-bait
+            call is the best demo: it&apos;s vague enough that the AI tends to overstate it, so you
+            can watch the checker catch the invented claim.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {orderedSamples.map((s) => {
@@ -105,7 +145,7 @@ export default function Home() {
               return (
                 <button
                   key={s.title}
-                  onClick={() => setTranscript(s.text)}
+                  onClick={() => changeTranscript(s.text)}
                   className={
                     isBait
                       ? "rounded-full bg-[var(--color-accent)] px-3.5 py-1.5 text-sm font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)]"
@@ -121,20 +161,29 @@ export default function Home() {
 
         <textarea
           value={transcript}
-          onChange={(e) => setTranscript(e.target.value)}
-          placeholder="Paste a customer-call transcript…"
+          onChange={(e) => changeTranscript(e.target.value)}
+          placeholder="Paste your call transcript here, or pick a sample above…"
           className="mt-4 h-44 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 font-mono text-sm text-[var(--color-fg)] outline-none transition placeholder:text-[var(--color-fg-faint)] focus:border-[var(--color-accent)] focus:shadow-[0_0_0_3px_rgba(34,211,238,0.15)]"
         />
 
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <button
-            onClick={analyze}
-            disabled={loading || !transcript.trim()}
+            onClick={generate}
+            disabled={generating || checking || !transcript.trim()}
             className="rounded-xl bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {loading ? "Analyzing…" : "Analyze the summary"}
+            {generating ? "Generating summary…" : summary ? "Regenerate summary" : "2. Generate summary"}
           </button>
-          {loading && <PipelineStages loading />}
+          <span aria-hidden className="text-[var(--color-fg-faint)]">→</span>
+          <button
+            onClick={check}
+            disabled={!summary || generating || checking}
+            title={!summary ? "Generate the summary first" : undefined}
+            className="rounded-xl bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {checking ? "Checking…" : "3. Check against the call"}
+          </button>
+          {(generating || checking) && <PipelineStages loading />}
         </div>
       </div>
 
@@ -142,6 +191,37 @@ export default function Home() {
         <p className="mt-4 rounded-lg border border-[var(--color-flagged)]/40 bg-[var(--color-flagged-bg)] px-3 py-2 text-sm text-[var(--color-flagged)]">
           {error}
         </p>
+      )}
+
+      {summary && !result && (
+        <div className="gt-fade-in mt-8 space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight sm:text-xl">
+              The AI&apos;s summary of the call
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm text-[var(--color-fg-muted)]">
+              The model wrote this, not you, and it may have added claims the call never supports.
+              Hit{" "}
+              <span className="font-medium text-[var(--color-fg)]">3. Check against the call</span>{" "}
+              above to verify each claim against the transcript.
+            </p>
+          </div>
+          <ul className="space-y-2">
+            {summary.map((c, i) => (
+              <li
+                key={i}
+                className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
+              >
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-fg-muted)]">
+                  {c.type}
+                </span>
+                <div className="mt-2 text-sm font-medium leading-snug text-[var(--color-fg)]">
+                  {c.text}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {result && (
