@@ -8,7 +8,7 @@ export function PipelineStages({
   latencies?: { generateMs: number; judgeMs: number };
 }) {
   return (
-    <div className="flex items-center gap-2 text-xs">
+    <div className="flex flex-wrap items-center gap-2 text-xs">
       {STAGES.map((stage, i) => {
         const detail =
           latencies && stage === "Generate"

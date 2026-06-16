@@ -45,18 +45,20 @@ export function ClaimList({
             } ${isSelected ? "ring-2 ring-[var(--color-accent)]" : ""}`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase tracking-wider text-[var(--color-fg-faint)]">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-fg-muted)]">
                 {c.type}
               </span>
               <span
-                className={`text-[10px] font-semibold ${
+                className={`text-[11px] font-semibold ${
                   c.flagged ? "text-[var(--color-flagged)]" : "text-[var(--color-grounded)]"
                 }`}
               >
                 {c.flagged ? "⚑ review" : "✓ grounded"}
               </span>
             </div>
-            <div className="mt-2 text-sm text-[var(--color-fg)]">{c.text}</div>
+            <div className="mt-2 text-sm font-medium leading-snug text-[var(--color-fg)]">
+              {c.text}
+            </div>
             <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-[var(--color-border)]">
               <div
                 className={`h-full rounded-full ${verdictBar[c.verdict]}`}

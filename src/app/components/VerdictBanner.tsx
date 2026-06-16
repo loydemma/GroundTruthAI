@@ -12,14 +12,14 @@ export function VerdictBanner({ claims }: { claims: VerifiedClaim[] }) {
 
   return (
     <div
-      className={`gt-fade-in rounded-2xl border p-6 ${
+      className={`gt-fade-in rounded-2xl border p-5 sm:p-6 ${
         ok
           ? "border-[var(--color-grounded)]/40 bg-[var(--color-grounded-bg)]"
           : "border-[var(--color-flagged)]/40 bg-[var(--color-flagged-bg)] shadow-[0_0_40px_-12px_var(--color-flagged)]"
       }`}
     >
       <div
-        className={`text-xl font-semibold tracking-tight ${
+        className={`text-lg font-semibold tracking-tight sm:text-xl ${
           ok ? "text-[var(--color-grounded)]" : "text-[var(--color-flagged)]"
         }`}
       >

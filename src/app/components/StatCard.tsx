@@ -27,10 +27,12 @@ export function StatCard({
 }) {
   return (
     <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <div className="text-[10px] font-medium uppercase tracking-wider text-[var(--color-fg-faint)]">
+      <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-fg-muted)]">
         {label}
       </div>
-      <div className={`mt-2 font-mono text-2xl tabular-nums ${toneText[tone]}`}>{value}</div>
+      <div className={`mt-2 font-mono text-2xl font-semibold tabular-nums ${toneText[tone]}`}>
+        {value}
+      </div>
       {bar !== undefined && (
         <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-[var(--color-border)]">
           <div
