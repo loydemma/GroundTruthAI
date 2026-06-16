@@ -27,14 +27,17 @@ export default function GoldenPage() {
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-10">
-      <Link href="/" className="text-sm text-[var(--color-accent)] transition hover:underline">
+    <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6 sm:py-10">
+      <Link
+        href="/"
+        className="text-sm font-medium text-[var(--color-accent)] transition hover:underline"
+      >
         ← Analyzer
       </Link>
-      <h1 className="mt-4 text-2xl font-bold tracking-tight">
+      <h1 className="mt-4 text-2xl font-bold tracking-tight sm:text-3xl">
         Meta-eval: who evaluates the evaluator?
       </h1>
-      <p className="mt-2 text-sm text-[var(--color-fg-muted)]">
+      <p className="mt-2 max-w-prose text-sm text-[var(--color-fg-muted)] sm:text-base">
         Runs the faithfulness judge against a hand-labeled golden set and reports how accurately it
         catches unsupported claims.
       </p>

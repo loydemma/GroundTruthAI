@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GroundTruthAI — faithfulness checking for AI call summaries",
+  title: "GroundTruthAI: faithfulness checks for AI call summaries",
   description:
     "Summarize a customer call, then catch the AI when it invents a claim the transcript never supports.",
 };

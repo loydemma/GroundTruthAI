@@ -37,20 +37,20 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
-      <header className="flex items-baseline justify-between">
+    <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between">
         <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+          <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight sm:text-3xl">
             <span className="inline-block h-2.5 w-2.5 rounded-full bg-[var(--color-accent)] shadow-[0_0_12px_var(--color-accent)]" />
             GroundTruthAI
           </h1>
-          <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
-            Summarize a customer call — and catch the AI when it invents a claim.
+          <p className="mt-2 max-w-prose text-sm text-[var(--color-fg-muted)] sm:text-base">
+            Summarize a customer call, then catch the AI when it invents a claim.
           </p>
         </div>
         <Link
           href="/golden"
-          className="rounded-full border border-[var(--color-border)] px-3 py-1 text-sm text-[var(--color-accent)] transition hover:border-[var(--color-accent)]"
+          className="self-start rounded-full border border-[var(--color-border)] px-3 py-1.5 text-sm font-medium text-[var(--color-accent)] transition hover:border-[var(--color-accent)] sm:self-auto"
         >
           Meta-eval →
         </Link>
@@ -75,7 +75,7 @@ export default function Home() {
         className="mt-4 h-44 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 font-mono text-sm text-[var(--color-fg)] outline-none transition placeholder:text-[var(--color-fg-faint)] focus:border-[var(--color-accent)] focus:shadow-[0_0_0_3px_rgba(34,211,238,0.15)]"
       />
 
-      <div className="mt-3 flex items-center gap-4">
+      <div className="mt-3 flex flex-wrap items-center gap-3">
         <button
           onClick={analyze}
           disabled={loading || !transcript.trim()}
