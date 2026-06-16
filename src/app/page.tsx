@@ -5,6 +5,8 @@ import { SAMPLE_TRANSCRIPTS } from "@/samples/transcripts";
 import { MetricsPanel } from "./components/MetricsPanel";
 import { ClaimList } from "./components/ClaimList";
 import { TranscriptPane } from "./components/TranscriptPane";
+import { VerdictBanner } from "./components/VerdictBanner";
+import { PipelineStages } from "./components/PipelineStages";
 import type { AnalysisResult, VerifiedClaim } from "@/lib/types";
 
 export default function Home() {
@@ -35,25 +37,31 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl p-6">
+    <main className="mx-auto max-w-6xl px-6 py-10">
       <header className="flex items-baseline justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">GroundTruthAI</h1>
-          <p className="text-sm text-neutral-600">
+          <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+            <span className="inline-block h-2.5 w-2.5 rounded-full bg-[var(--color-accent)] shadow-[0_0_12px_var(--color-accent)]" />
+            GroundTruthAI
+          </h1>
+          <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
             Summarize a customer call — and catch the AI when it invents a claim.
           </p>
         </div>
-        <Link href="/golden" className="text-sm underline">
+        <Link
+          href="/golden"
+          className="rounded-full border border-[var(--color-border)] px-3 py-1 text-sm text-[var(--color-accent)] transition hover:border-[var(--color-accent)]"
+        >
           Meta-eval →
         </Link>
       </header>
 
-      <div className="mt-5 flex flex-wrap gap-2">
+      <div className="mt-8 flex flex-wrap gap-2">
         {SAMPLE_TRANSCRIPTS.map((s) => (
           <button
             key={s.title}
             onClick={() => setTranscript(s.text)}
-            className="rounded-full border border-neutral-300 px-3 py-1 text-sm hover:bg-neutral-100"
+            className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 text-sm text-[var(--color-fg-muted)] transition hover:border-[var(--color-accent)] hover:text-[var(--color-fg)]"
           >
             {s.title}
           </button>
@@ -64,20 +72,29 @@ export default function Home() {
         value={transcript}
         onChange={(e) => setTranscript(e.target.value)}
         placeholder="Paste a customer-call transcript…"
-        className="mt-3 h-40 w-full rounded-lg border border-neutral-300 p-3 font-mono text-sm"
+        className="mt-4 h-44 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 font-mono text-sm text-[var(--color-fg)] outline-none transition placeholder:text-[var(--color-fg-faint)] focus:border-[var(--color-accent)] focus:shadow-[0_0_0_3px_rgba(34,211,238,0.15)]"
       />
-      <button
-        onClick={analyze}
-        disabled={loading || !transcript.trim()}
-        className="mt-2 rounded-lg bg-neutral-900 px-4 py-2 text-sm text-white disabled:opacity-50"
-      >
-        {loading ? "Analyzing…" : "Analyze"}
-      </button>
 
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      <div className="mt-3 flex items-center gap-4">
+        <button
+          onClick={analyze}
+          disabled={loading || !transcript.trim()}
+          className="rounded-xl bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {loading ? "Analyzing…" : "Analyze"}
+        </button>
+        {loading && <PipelineStages loading />}
+      </div>
+
+      {error && (
+        <p className="mt-4 rounded-lg border border-[var(--color-flagged)]/40 bg-[var(--color-flagged-bg)] px-3 py-2 text-sm text-[var(--color-flagged)]">
+          {error}
+        </p>
+      )}
 
       {result && (
-        <div className="mt-6 space-y-4">
+        <div className="mt-8 space-y-6">
+          <VerdictBanner claims={result.claims} />
           <MetricsPanel m={result.metrics} />
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <TranscriptPane transcript={transcript} highlights={selected?.citedSpans ?? []} />
