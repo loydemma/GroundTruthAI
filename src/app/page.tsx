@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { SAMPLE_TRANSCRIPTS } from "@/samples/transcripts";
 import { MetricsPanel } from "./components/MetricsPanel";
@@ -18,6 +18,9 @@ export default function Home() {
   const [generating, setGenerating] = useState(false);
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Synchronous lock: blocks re-entry instantly (spam-click, held Enter) before
+  // the disabled-button re-render lands.
+  const inFlight = useRef(false);
 
   // Lead with the hallucination-bait sample — it's the demo that proves the point.
   const orderedSamples = [...SAMPLE_TRANSCRIPTS].sort(
@@ -38,6 +41,8 @@ export default function Home() {
 
   // Step 1: the model under test drafts the summary.
   async function generate() {
+    if (inFlight.current || !transcript.trim()) return;
+    inFlight.current = true;
     setGenerating(true);
     setSummary(null);
     setGenStage(null);
@@ -58,12 +63,14 @@ export default function Home() {
       setError(e instanceof Error ? e.message : "Could not generate the summary");
     } finally {
       setGenerating(false);
+      inFlight.current = false;
     }
   }
 
   // Step 2: judge the summary against the call and verify the evidence.
   async function check() {
-    if (!summary) return;
+    if (inFlight.current || !summary) return;
+    inFlight.current = true;
     setChecking(true);
     setSelected(null);
     setError(null);
@@ -80,6 +87,7 @@ export default function Home() {
       setError(e instanceof Error ? e.message : "Could not check the summary");
     } finally {
       setChecking(false);
+      inFlight.current = false;
     }
   }
 

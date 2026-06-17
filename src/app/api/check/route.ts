@@ -2,11 +2,15 @@ import { GeminiClient, MODEL_NAME } from "@/lib/model/client";
 import { runCheck, combineMetrics } from "@/lib/pipeline/pipeline";
 import { getDb } from "@/lib/db/client";
 import { transcripts, analyses, claims as claimsTable } from "@/lib/db/schema";
+import { checkRateLimit, tooManyRequests } from "@/lib/rateLimit";
 import type { GeneratedClaim, StageMetrics } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
+  const rl = checkRateLimit(req);
+  if (!rl.ok) return tooManyRequests(rl.retryAfter);
+
   const { title, transcript, claims, generate } = (await req.json()) as {
     title: string;
     transcript: string;

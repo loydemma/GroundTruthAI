@@ -2,10 +2,14 @@ import { GeminiClient, MODEL_NAME } from "@/lib/model/client";
 import { analyzeTranscript } from "@/lib/pipeline/pipeline";
 import { getDb } from "@/lib/db/client";
 import { transcripts, analyses, claims as claimsTable } from "@/lib/db/schema";
+import { checkRateLimit, tooManyRequests } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
+  const rl = checkRateLimit(req);
+  if (!rl.ok) return tooManyRequests(rl.retryAfter);
+
   const { title, transcript } = (await req.json()) as { title: string; transcript: string };
   if (!transcript?.trim()) {
     return Response.json({ error: "transcript is required" }, { status: 400 });
