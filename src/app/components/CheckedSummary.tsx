@@ -10,7 +10,7 @@ export function CheckedSummary({ claims }: { claims: VerifiedClaim[] }) {
     <div className="space-y-5">
       {groups.map((g) => (
         <div key={g.type}>
-          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)]">
             {CATEGORY_LABEL[g.type as ClaimType] ?? g.type}
           </h3>
           <ul className="mt-2 space-y-2">

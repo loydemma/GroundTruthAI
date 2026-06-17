@@ -6,9 +6,9 @@
   --color-surface: #111317;
   --color-surface-2: #15181d;
   --color-border: #1f2329;
-  --color-fg: #e8eaed;
-  --color-fg-muted: #b4bcc8;
-  --color-fg-faint: #8b93a0;
+  --color-fg: #f4f6f9;
+  --color-fg-muted: #d8dde4;
+  --color-fg-faint: #aeb7c3;
 
   /* accent (brand / interactive only) */
   --color-accent: #22d3ee;

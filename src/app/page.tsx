@@ -123,18 +123,18 @@ export default function Home() {
         <h1 className="mt-3 max-w-3xl text-3xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
           Catch the claims your AI summary <span className="gt-glow">made up</span>.
         </h1>
-        <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--color-fg-muted)] sm:text-lg">
+        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-[var(--color-fg-muted)] sm:text-xl">
           Paste a customer call. GroundTruthAI drafts the summary, then checks every claim
           against the transcript and flags the ones the call never backed up.
         </p>
 
-        <ol className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-[var(--color-fg-muted)]">
+        <ol className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-base text-[var(--color-fg-muted)]">
           {["Add a call transcript", "Generate the summary", "Check it against the call"].map(
             (label, i) => (
               <li key={label} className="flex items-center gap-3">
                 {i > 0 && <span aria-hidden className="text-[var(--color-fg-faint)]">→</span>}
                 <span className="flex items-center gap-2">
-                  <span className="font-mono text-xs text-[var(--color-accent)]">{i + 1}</span>
+                  <span className="font-mono text-sm font-semibold text-[var(--color-accent)]">{i + 1}</span>
                   {label}
                 </span>
               </li>
@@ -145,25 +145,26 @@ export default function Home() {
 
       <div className="mt-7 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 sm:p-5">
         <div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-fg-muted)]">
+          <span className="text-sm font-semibold uppercase tracking-wider text-[var(--color-fg-muted)]">
             <span className="text-[var(--color-accent)]">1</span> · Add a call transcript
           </span>
-          <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
-            Paste a transcript in the box below, or load the sample call to start. Run it as
-            is to see a faithful summary check out clean, then turn on{" "}
-            <span className="font-medium text-[var(--color-fg)]">Simulate a hallucination</span>{" "}
-            to watch the checker catch a planted claim.
+          <p className="mt-2 max-w-2xl text-base leading-relaxed text-[var(--color-fg-muted)]">
+            No transcript handy? Click{" "}
+            <span className="font-semibold text-[var(--color-fg)]">Load sample call</span> below to
+            drop a ready-made call into the box, or paste your own.
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             {SAMPLE_TRANSCRIPTS.map((s) => (
               <button
                 key={s.title}
                 onClick={() => changeTranscript(s.text, s.simulatedClaim)}
-                className="rounded-full bg-[var(--color-accent)] px-3.5 py-1.5 text-sm font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)]"
+                className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-5 py-3 text-base font-semibold text-[#06222a] shadow-[0_0_24px_-6px_var(--color-accent)] transition hover:bg-[var(--color-accent-strong)]"
               >
-                {s.title}
+                <span aria-hidden className="text-lg leading-none">↓</span>
+                Load sample call
               </button>
             ))}
+            <span className="text-sm text-[var(--color-fg-faint)]">← start here</span>
           </div>
         </div>
 
@@ -174,17 +175,36 @@ export default function Home() {
           placeholder="Paste your call transcript here, or load the sample above…"
           className="mt-4 h-44 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 font-mono text-sm text-[var(--color-fg)] outline-none transition placeholder:text-[var(--color-fg-faint)] focus:border-[var(--color-accent)] focus:shadow-[0_0_0_3px_rgba(34,211,238,0.15)]"
         />
-        <p className="mt-1.5 text-right font-mono text-xs text-[var(--color-fg-faint)]">
+        <p className="mt-2 text-right font-mono text-sm text-[var(--color-fg-faint)]">
           {(MAX_TRANSCRIPT_CHARS - transcript.length).toLocaleString()} characters left
           {" · "}
           {MAX_TRANSCRIPT_CHARS.toLocaleString()} max
         </p>
 
-        <div className="mt-3 flex flex-wrap items-center gap-3">
+        <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--color-accent)]/50 bg-[var(--color-accent)]/5 p-4 transition hover:border-[var(--color-accent)] hover:bg-[var(--color-accent)]/10">
+          <input
+            type="checkbox"
+            checked={simulate}
+            onChange={(e) => setSimulate(e.target.checked)}
+            className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--color-accent)]"
+          />
+          <span>
+            <span className="block text-base font-semibold text-[var(--color-fg)]">
+              ★ Check this box to simulate a hallucination
+            </span>
+            <span className="mt-1.5 block max-w-2xl text-base leading-relaxed text-[var(--color-fg-muted)]">
+              Modern AI rarely hallucinates on a clean call, which is good, but it makes a
+              detector hard to prove. So plant a known false claim and watch the checker catch
+              it. In short: inject a known defect to prove it works.
+            </span>
+          </span>
+        </label>
+
+        <div className="mt-4 flex flex-wrap items-center gap-3">
           <button
             onClick={generate}
             disabled={generating || checking || !transcript.trim()}
-            className="rounded-xl bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-xl bg-[var(--color-accent)] px-5 py-3 text-base font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-40"
           >
             {generating ? "Generating summary…" : summary ? "Regenerate summary" : "2. Generate summary"}
           </button>
@@ -193,32 +213,15 @@ export default function Home() {
             onClick={check}
             disabled={!summary || generating || checking}
             title={!summary ? "Generate the summary first" : undefined}
-            className="rounded-xl bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-xl bg-[var(--color-accent)] px-5 py-3 text-base font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-40"
           >
             {checking ? "Checking…" : "3. Check against the call"}
           </button>
           {(generating || checking) && <PipelineStages loading />}
-        </div>
-
-        <div className="mt-3 flex flex-col gap-2">
-          <label className="flex items-center gap-2 text-sm text-[var(--color-fg)]">
-            <input
-              type="checkbox"
-              checked={simulate}
-              onChange={(e) => setSimulate(e.target.checked)}
-              className="h-4 w-4 accent-[var(--color-accent)]"
-            />
-            Simulate a hallucination (demo)
-          </label>
-          <p className="max-w-2xl text-xs leading-relaxed text-[var(--color-fg-muted)]">
-            Modern AI rarely hallucinates on a clean call, which is good, but it makes a
-            detector hard to prove. So plant a known false claim and watch the checker catch
-            it. In short: inject a known defect to prove it works.
-          </p>
           {remaining !== null && (
-            <p className="font-mono text-xs text-[var(--color-fg-faint)]">
+            <span className="ml-auto font-mono text-sm text-[var(--color-fg-faint)]">
               {remaining} {remaining === 1 ? "try" : "tries"} left today
-            </p>
+            </span>
           )}
         </div>
       </div>
@@ -235,9 +238,9 @@ export default function Home() {
             <h2 className="text-lg font-semibold tracking-tight sm:text-xl">
               The AI&apos;s summary of this call
             </h2>
-            <p className="mt-1 max-w-2xl text-sm text-[var(--color-fg-muted)]">
+            <p className="mt-1.5 max-w-2xl text-base leading-relaxed text-[var(--color-fg-muted)]">
               The model wrote this. Next, hit{" "}
-              <span className="font-medium text-[var(--color-fg)]">3. Check against the call</span>{" "}
+              <span className="font-semibold text-[var(--color-fg)]">3. Check against the call</span>{" "}
               to trace every line back to the transcript.
             </p>
           </div>
@@ -259,7 +262,7 @@ export default function Home() {
           </Collapsible>
           <Link
             href="/golden"
-            className="group flex items-center justify-between gap-3 rounded-xl border border-[var(--color-accent)]/40 bg-[var(--color-accent)]/5 px-4 py-3 text-sm transition hover:bg-[var(--color-accent)]/10"
+            className="group flex items-center justify-between gap-3 rounded-xl border border-[var(--color-accent)]/40 bg-[var(--color-accent)]/5 px-4 py-3 text-base transition hover:bg-[var(--color-accent)]/10"
           >
             <span className="text-[var(--color-fg)]">
               But can you trust the checker itself? See its precision, recall, and F1 on a
