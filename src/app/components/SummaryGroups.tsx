@@ -8,21 +8,21 @@ export function SummaryGroups({ claims }: { claims: GeneratedClaim[] }) {
   return (
     <div className="space-y-5">
       {hasSimulated && (
-        <p className="rounded-lg border border-[var(--color-partial)]/40 bg-[var(--color-partial-bg)] px-3 py-2 text-sm text-[var(--color-partial)]">
+        <p className="rounded-lg border border-[var(--color-partial)]/40 bg-[var(--color-partial-bg)] px-3 py-2.5 text-base leading-relaxed text-[var(--color-partial)]">
           Demo mode. One claim below was planted, not written by the AI. The rest is the
           real Gemini summary, and the checker hasn&apos;t been told which is which.
         </p>
       )}
       {groups.map((g) => (
         <div key={g.type}>
-          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)]">
             {CATEGORY_LABEL[g.type as ClaimType] ?? g.type}
           </h3>
-          <ul className="mt-2 space-y-1.5">
+          <ul className="mt-2 space-y-2">
             {g.claims.map((c, i) => (
               <li
                 key={i}
-                className="flex gap-2.5 text-sm leading-relaxed text-[var(--color-fg)]"
+                className="flex gap-2.5 text-base leading-relaxed text-[var(--color-fg)]"
               >
                 <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[var(--color-fg-faint)]" />
                 <span>

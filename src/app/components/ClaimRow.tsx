@@ -32,7 +32,7 @@ export function ClaimRow({ claim }: { claim: VerifiedClaim }) {
       }`}
     >
       <div className="flex items-start justify-between gap-3 p-3">
-        <span className="text-sm font-medium leading-snug text-[var(--color-fg)]">
+        <span className="text-base font-medium leading-snug text-[var(--color-fg)]">
           {claim.text}
           {claim.simulated && (
             <span className="ml-2 inline-flex items-center rounded-full border border-[var(--color-partial)]/50 bg-[var(--color-partial-bg)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-partial)]">
@@ -49,14 +49,14 @@ export function ClaimRow({ claim }: { claim: VerifiedClaim }) {
 
       <div className="px-3 pb-3 pl-4">
         {pill === "no-source" ? (
-          <p className="text-xs text-[var(--color-flagged)]">
+          <p className="text-sm text-[var(--color-flagged)]">
             {claim.citedSpans.length > 0 && !claim.verified
               ? "The cited evidence isn't in the transcript."
               : "Nothing in the transcript supports this."}
           </p>
         ) : (
           <div className="space-y-1.5">
-            <p className="text-[11px] uppercase tracking-wider text-[var(--color-fg-muted)]">
+            <p className="text-xs uppercase tracking-wider text-[var(--color-fg-muted)]">
               from the call
             </p>
             {claim.citedSpans.map((s, i) => (
