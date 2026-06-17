@@ -3,10 +3,14 @@ import { judgeClaim } from "@/lib/pipeline/judge";
 import { verifyClaim } from "@/lib/pipeline/verify";
 import { GOLDEN_SET } from "@/lib/golden/dataset";
 import { scoreGolden, type GoldenPrediction } from "@/lib/golden/score";
+import { checkRateLimit, tooManyRequests } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const rl = checkRateLimit(req);
+  if (!rl.ok) return tooManyRequests(rl.retryAfter);
+
   const client = new GeminiClient();
   const predictions: GoldenPrediction[] = [];
   for (const item of GOLDEN_SET) {
