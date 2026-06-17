@@ -2,56 +2,39 @@
 
 Faithfulness checking for AI-generated call summaries.
 
-LLMs summarize customer calls well enough, but they occasionally assert things that were never said
-(a commitment, a discount, a decision). This tool generates the summary and then checks each claim
-in it against the source transcript, marking anything it can't substantiate.
+AI summarizes customer calls well, but it can occasionally state things the call never said:
+a commitment, a discount, or a decision that was never actually made. GroundTruthAI drafts the
+summary and then checks every claim in it against the original transcript, flagging anything the
+call doesn't support.
 
-## Pipeline
+## How it works
 
-1. **Generate** — the model returns a structured summary: key points, action items, commitments,
-   decisions.
-2. **Judge** — a second pass rates each claim (`supported` / `partially` / `unsupported`) and returns
-   the transcript spans it relied on.
-3. **Verify** — the cited spans are matched back against the transcript in code. A claim the judge
-   marked "supported" but whose evidence isn't actually present is downgraded; this catches the judge
-   fabricating its own citations.
-4. **Route** — unsupported, unverified, or low-confidence claims are surfaced for review.
+1. Paste a call transcript, or load the sample call.
+2. **Generate** — the AI drafts a structured summary of the call.
+3. **Check** — every claim is traced back to the transcript, and any the call doesn't back up
+   are flagged for review.
 
-Each run records latency per stage, token usage, and an estimated cost. `/golden` runs the judge over
-a hand-labeled set and reports precision/recall so the judge's accuracy is itself measurable.
+## Demo mode
 
-## Design notes
+Modern models rarely hallucinate on a clean call, which is good but makes a checker hard to show
+off. Turn on **Simulate a hallucination** to plant one known false claim into the real summary and
+watch the checker catch it, while leaving the genuine claims untouched. The planted claim is always
+clearly labeled. It is a demonstration, never hidden.
 
-The judge-plus-verification step is deliberate. LLM-as-judge on its own is the usual approach and
-generalizes to most tasks, but it can't detect its own errors. Transcripts are close to verbatim, so
-supporting evidence is normally present as a near-exact span and is cheap to confirm in code. The
-verification layer is specific to that property and wouldn't transfer to free-form RAG.
+## How accurate is the checker?
 
-The model sits behind a `ModelClient` interface and is selected by the `MODEL_NAME` env var. The
-pipeline is otherwise pure, so it's tested with a fake client and no network access.
+The app includes an accuracy page that scores the checker against a hand-labeled set of claims and
+reports its precision, recall, and F1, so the checker's own reliability is measurable rather than
+just asserted.
 
 ## Stack
 
-Next.js 16 (App Router), TypeScript, Tailwind, Drizzle + Neon Postgres, Gemini 2.5 Flash, Vitest.
+Next.js (App Router), TypeScript, Tailwind, Postgres, and Google Gemini.
 
-## Development
+## Run it locally
 
 ```bash
 npm install
-cp .env.example .env        # set DATABASE_URL and GOOGLE_API_KEY
-npx drizzle-kit push        # create tables
+cp .env.example .env   # add your database URL and Google API key
 npm run dev
 ```
-
-```bash
-npm test
-npm run build
-```
-
-## Environment
-
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URL` | Neon Postgres connection string |
-| `GOOGLE_API_KEY` | Google AI Studio key |
-| `MODEL_NAME` | Model id, e.g. `gemini-2.5-flash` |

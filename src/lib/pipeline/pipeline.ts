@@ -7,7 +7,7 @@ import type {
   VerifiedClaim,
 } from "../types";
 import { generateClaims } from "./generate";
-import { judgeClaim } from "./judge";
+import { judgeClaims } from "./judge";
 import { verifyClaim } from "./verify";
 import { routeClaim } from "./route";
 import { estimateGpt4oCostUsd, flaggedPct } from "../metrics";
@@ -36,18 +36,20 @@ export async function runCheck(
   claims: GeneratedClaim[]
 ): Promise<{ claims: VerifiedClaim[]; stage: StageMetrics }> {
   const start = Date.now();
-  let promptTokens = 0;
-  let completionTokens = 0;
-  const verified: VerifiedClaim[] = [];
-  for (const claim of claims) {
-    const { judged, response } = await judgeClaim(client, claim, transcript);
-    promptTokens += response.promptTokens;
-    completionTokens += response.completionTokens;
-    verified.push(routeClaim(verifyClaim(judged, transcript)));
-  }
+  const { judged, response } = await judgeClaims(
+    client,
+    claims.map((claim) => ({ claim, transcript }))
+  );
+  const verified: VerifiedClaim[] = judged.map((j) =>
+    routeClaim(verifyClaim(j, transcript))
+  );
   return {
     claims: verified,
-    stage: { latencyMs: Date.now() - start, promptTokens, completionTokens },
+    stage: {
+      latencyMs: Date.now() - start,
+      promptTokens: response.promptTokens,
+      completionTokens: response.completionTokens,
+    },
   };
 }
 

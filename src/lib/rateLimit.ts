@@ -46,3 +46,49 @@ export function tooManyRequests(retryAfter: number): Response {
     { status: 429, headers: { "Retry-After": String(retryAfter) } },
   );
 }
+
+// Per-IP daily quota for the paid model routes, so a demo can't run up cost.
+// In-memory and per-process, same caveat as the anti-spam limiter above.
+export const DAILY_MAX_REQUESTS = 25;
+
+export function createDailyLimiter(maxRequests: number) {
+  const hits = new Map<string, { count: number; day: number }>();
+  const dayOf = (now: number) => Math.floor(now / 86_400_000); // UTC day index
+
+  function current(key: string, now: number) {
+    const hit = hits.get(key);
+    const day = dayOf(now);
+    return hit && hit.day === day ? hit : { count: 0, day };
+  }
+
+  return {
+    consume(key: string, now: number = Date.now()): { ok: boolean; remaining: number } {
+      const c = current(key, now);
+      if (c.count >= maxRequests) return { ok: false, remaining: 0 };
+      const next = { count: c.count + 1, day: c.day };
+      hits.set(key, next);
+      return { ok: true, remaining: maxRequests - next.count };
+    },
+    peek(key: string, now: number = Date.now()): { remaining: number } {
+      const c = current(key, now);
+      return { remaining: Math.max(0, maxRequests - c.count) };
+    },
+  };
+}
+
+const dailyLimiter = createDailyLimiter(DAILY_MAX_REQUESTS);
+
+export function checkDailyLimit(req: Request): { ok: boolean; remaining: number } {
+  return dailyLimiter.consume(clientIp(req));
+}
+
+export function peekDailyLimit(req: Request): { remaining: number } {
+  return dailyLimiter.peek(clientIp(req));
+}
+
+export function dailyLimitReached(): Response {
+  return Response.json(
+    { error: "Daily demo limit reached, resets at midnight UTC.", remaining: 0 },
+    { status: 429 },
+  );
+}

@@ -13,18 +13,19 @@ describe("analyzeTranscript", () => {
         { text: "Customer asked for a 50% discount.", type: "summary" },
       ],
     });
-    const judgeGood = JSON.stringify({
-      verdict: "supported",
-      confidence: 0.95,
-      citedSpans: ["We will renew the contract next quarter"],
+    // One generate call, then one batched judge call with a result per claim.
+    const judgeBatch = JSON.stringify({
+      results: [
+        {
+          verdict: "supported",
+          confidence: 0.95,
+          citedSpans: ["We will renew the contract next quarter"],
+        },
+        // Hallucinated claim: judge says supported but cites text not in the transcript.
+        { verdict: "supported", confidence: 0.9, citedSpans: ["Customer asked for a 50% discount"] },
+      ],
     });
-    // Hallucinated claim: judge says supported but cites text not in the transcript.
-    const judgeHallucinatedEvidence = JSON.stringify({
-      verdict: "supported",
-      confidence: 0.9,
-      citedSpans: ["Customer asked for a 50% discount"],
-    });
-    const fake = new FakeModelClient([gen, judgeGood, judgeHallucinatedEvidence]);
+    const fake = new FakeModelClient([gen, judgeBatch]);
 
     const { claims, metrics } = await analyzeTranscript(fake, transcript);
 

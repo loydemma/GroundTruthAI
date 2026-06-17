@@ -1,30 +1,16 @@
 export interface SampleTranscript {
   title: string;
   text: string;
+  simulatedClaim?: string; // plausible-but-false claim to plant in demo mode
 }
 
 export const SAMPLE_TRANSCRIPTS: SampleTranscript[] = [
   {
-    title: "Renewal sales call",
-    text: `Rep: Thanks for hopping on. How has the rollout gone?
-Customer: Honestly pretty well. The team adopted it faster than expected.
-Rep: Glad to hear it. Are you thinking about the annual plan?
-Customer: We're leaning that way. We'll renew next quarter once budget opens up.
-Rep: Perfect. I'll send the renewal paperwork so it's ready.`,
-  },
-  {
-    title: "Billing support call",
+    title: "Sample support call",
+    simulatedClaim: "The agent agreed to waive next month's bill.",
     text: `Customer: I was double-charged this month.
 Agent: I'm sorry about that. I can see two charges on the 3rd. I'll refund one today.
 Customer: Thank you. How long does it take?
 Agent: Three to five business days. I'll email you a confirmation.`,
-  },
-  {
-    title: "Ambiguous sales call (hallucination bait)",
-    text: `Rep: Did you get a chance to look at the enterprise tier?
-Customer: I skimmed it. The SSO feature is interesting.
-Rep: Should I put together a quote?
-Customer: Maybe later. I can't commit to anything right now. I need to talk to my manager.
-Rep: Understood, no pressure.`,
   },
 ];

@@ -1,41 +1,48 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { SAMPLE_TRANSCRIPTS } from "@/samples/transcripts";
+import { injectSimulatedClaim } from "@/lib/sim/inject";
+import { MAX_TRANSCRIPT_CHARS } from "@/lib/limits";
 import { MetricsPanel } from "./components/MetricsPanel";
-import { ClaimList } from "./components/ClaimList";
+import { SummaryGroups } from "./components/SummaryGroups";
+import { CheckedSummary } from "./components/CheckedSummary";
+import { Collapsible } from "./components/Collapsible";
 import { TranscriptPane } from "./components/TranscriptPane";
 import { VerdictBanner } from "./components/VerdictBanner";
 import { PipelineStages } from "./components/PipelineStages";
-import type { AnalysisResult, GeneratedClaim, StageMetrics, VerifiedClaim } from "@/lib/types";
+import type { AnalysisResult, GeneratedClaim, StageMetrics } from "@/lib/types";
 
 export default function Home() {
   const [transcript, setTranscript] = useState("");
   const [summary, setSummary] = useState<GeneratedClaim[] | null>(null);
   const [genStage, setGenStage] = useState<StageMetrics | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [selected, setSelected] = useState<VerifiedClaim | null>(null);
   const [generating, setGenerating] = useState(false);
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [simulate, setSimulate] = useState(false);
+  const [simClaimText, setSimClaimText] = useState<string | undefined>(undefined);
+  const [remaining, setRemaining] = useState<number | null>(null);
   // Synchronous lock: blocks re-entry instantly (spam-click, held Enter) before
   // the disabled-button re-render lands.
   const inFlight = useRef(false);
 
-  // Lead with the hallucination-bait sample — it's the demo that proves the point.
-  const orderedSamples = [...SAMPLE_TRANSCRIPTS].sort(
-    (a, b) =>
-      Number(b.title.toLowerCase().includes("bait")) -
-      Number(a.title.toLowerCase().includes("bait")),
-  );
+  // Show remaining daily tries on load without spending one.
+  useEffect(() => {
+    fetch("/api/generate")
+      .then((r) => r.json())
+      .then((d) => setRemaining(d.remaining ?? null))
+      .catch(() => {});
+  }, []);
 
   // Editing the call invalidates any summary/result drafted from the old text.
-  function changeTranscript(text: string) {
+  function changeTranscript(text: string, simulatedClaim?: string) {
     setTranscript(text);
+    setSimClaimText(simulatedClaim);
     setSummary(null);
     setGenStage(null);
     setResult(null);
-    setSelected(null);
     setError(null);
   }
 
@@ -47,7 +54,6 @@ export default function Home() {
     setSummary(null);
     setGenStage(null);
     setResult(null);
-    setSelected(null);
     setError(null);
     try {
       const res = await fetch("/api/generate", {
@@ -57,8 +63,9 @@ export default function Home() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Could not generate the summary");
-      setSummary(data.claims);
+      setSummary(simulate ? injectSimulatedClaim(data.claims, simClaimText) : data.claims);
       setGenStage(data.generate);
+      if (typeof data.remaining === "number") setRemaining(data.remaining);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not generate the summary");
     } finally {
@@ -72,7 +79,6 @@ export default function Home() {
     if (inFlight.current || !summary) return;
     inFlight.current = true;
     setChecking(true);
-    setSelected(null);
     setError(null);
     try {
       const res = await fetch("/api/check", {
@@ -143,36 +149,36 @@ export default function Home() {
             <span className="text-[var(--color-accent)]">1</span> · Add a call transcript
           </span>
           <p className="mt-1 text-sm text-[var(--color-fg-muted)]">
-            Paste a transcript in the box below, or pick a sample to start. The hallucination-bait
-            call is the best demo: it&apos;s vague enough that the AI tends to overstate it, so you
-            can watch the checker catch the invented claim.
+            Paste a transcript in the box below, or load the sample call to start. Run it as
+            is to see a faithful summary check out clean, then turn on{" "}
+            <span className="font-medium text-[var(--color-fg)]">Simulate a hallucination</span>{" "}
+            to watch the checker catch a planted claim.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            {orderedSamples.map((s) => {
-              const isBait = s.title.toLowerCase().includes("bait");
-              return (
-                <button
-                  key={s.title}
-                  onClick={() => changeTranscript(s.text)}
-                  className={
-                    isBait
-                      ? "rounded-full bg-[var(--color-accent)] px-3.5 py-1.5 text-sm font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)]"
-                      : "rounded-full border border-[var(--color-accent)]/60 bg-[var(--color-accent)]/10 px-3.5 py-1.5 text-sm font-medium text-[var(--color-accent)] transition hover:border-[var(--color-accent)] hover:bg-[var(--color-accent)]/20"
-                  }
-                >
-                  {s.title}
-                </button>
-              );
-            })}
+            {SAMPLE_TRANSCRIPTS.map((s) => (
+              <button
+                key={s.title}
+                onClick={() => changeTranscript(s.text, s.simulatedClaim)}
+                className="rounded-full bg-[var(--color-accent)] px-3.5 py-1.5 text-sm font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)]"
+              >
+                {s.title}
+              </button>
+            ))}
           </div>
         </div>
 
         <textarea
           value={transcript}
-          onChange={(e) => changeTranscript(e.target.value)}
-          placeholder="Paste your call transcript here, or pick a sample above…"
+          onChange={(e) => changeTranscript(e.target.value.slice(0, MAX_TRANSCRIPT_CHARS))}
+          maxLength={MAX_TRANSCRIPT_CHARS}
+          placeholder="Paste your call transcript here, or load the sample above…"
           className="mt-4 h-44 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 font-mono text-sm text-[var(--color-fg)] outline-none transition placeholder:text-[var(--color-fg-faint)] focus:border-[var(--color-accent)] focus:shadow-[0_0_0_3px_rgba(34,211,238,0.15)]"
         />
+        <p className="mt-1.5 text-right font-mono text-xs text-[var(--color-fg-faint)]">
+          {(MAX_TRANSCRIPT_CHARS - transcript.length).toLocaleString()} characters left
+          {" · "}
+          {MAX_TRANSCRIPT_CHARS.toLocaleString()} max
+        </p>
 
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <button
@@ -193,6 +199,28 @@ export default function Home() {
           </button>
           {(generating || checking) && <PipelineStages loading />}
         </div>
+
+        <div className="mt-3 flex flex-col gap-2">
+          <label className="flex items-center gap-2 text-sm text-[var(--color-fg)]">
+            <input
+              type="checkbox"
+              checked={simulate}
+              onChange={(e) => setSimulate(e.target.checked)}
+              className="h-4 w-4 accent-[var(--color-accent)]"
+            />
+            Simulate a hallucination (demo)
+          </label>
+          <p className="max-w-2xl text-xs leading-relaxed text-[var(--color-fg-muted)]">
+            Modern AI rarely hallucinates on a clean call, which is good, but it makes a
+            detector hard to prove. So plant a known false claim and watch the checker catch
+            it. In short: inject a known defect to prove it works.
+          </p>
+          {remaining !== null && (
+            <p className="font-mono text-xs text-[var(--color-fg-faint)]">
+              {remaining} {remaining === 1 ? "try" : "tries"} left today
+            </p>
+          )}
+        </div>
       </div>
 
       {error && (
@@ -205,41 +233,30 @@ export default function Home() {
         <div className="gt-fade-in mt-8 space-y-4">
           <div>
             <h2 className="text-lg font-semibold tracking-tight sm:text-xl">
-              The AI&apos;s summary of the call
+              The AI&apos;s summary of this call
             </h2>
             <p className="mt-1 max-w-2xl text-sm text-[var(--color-fg-muted)]">
-              The model wrote this, not you, and it may have added claims the call never supports.
-              Hit{" "}
+              The model wrote this. Next, hit{" "}
               <span className="font-medium text-[var(--color-fg)]">3. Check against the call</span>{" "}
-              above to verify each claim against the transcript.
+              to trace every line back to the transcript.
             </p>
           </div>
-          <ul className="space-y-2">
-            {summary.map((c, i) => (
-              <li
-                key={i}
-                className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4"
-              >
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-fg-muted)]">
-                  {c.type}
-                </span>
-                <div className="mt-2 text-sm font-medium leading-snug text-[var(--color-fg)]">
-                  {c.text}
-                </div>
-              </li>
-            ))}
-          </ul>
+          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+            <SummaryGroups claims={summary} />
+          </div>
         </div>
       )}
 
       {result && (
-        <div className="mt-8 space-y-6">
+        <div className="gt-fade-in mt-8 space-y-5">
           <VerdictBanner claims={result.claims} />
-          <MetricsPanel m={result.metrics} />
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <TranscriptPane transcript={transcript} highlights={selected?.citedSpans ?? []} />
-            <ClaimList claims={result.claims} selected={selected} onSelect={setSelected} />
-          </div>
+          <CheckedSummary claims={result.claims} />
+          <Collapsible summary="Under the hood — pipeline & cost">
+            <MetricsPanel m={result.metrics} />
+          </Collapsible>
+          <Collapsible summary="View full transcript">
+            <TranscriptPane transcript={transcript} highlights={[]} />
+          </Collapsible>
           <Link
             href="/golden"
             className="group flex items-center justify-between gap-3 rounded-xl border border-[var(--color-accent)]/40 bg-[var(--color-accent)]/5 px-4 py-3 text-sm transition hover:bg-[var(--color-accent)]/10"
