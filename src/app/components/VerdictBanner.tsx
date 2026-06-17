@@ -5,10 +5,12 @@ export function VerdictBanner({ claims }: { claims: VerifiedClaim[] }) {
   const flagged = claims.filter((c) => c.flagged).length;
   const grounded = total - flagged;
   const ok = flagged === 0;
+  const planted = claims.find((c) => c.simulated);
+  const plantedCaught = planted?.flagged === true;
 
   const headline = ok
-    ? "All claims grounded in the transcript"
-    : `${flagged} claim${flagged === 1 ? "" : "s"} couldn't be grounded in the transcript`;
+    ? "Every line traced back to the call"
+    : `${flagged} line${flagged === 1 ? "" : "s"} couldn't be traced to the call`;
 
   return (
     <div
@@ -27,8 +29,15 @@ export function VerdictBanner({ claims }: { claims: VerifiedClaim[] }) {
         {headline}
       </div>
       <div className="mt-1 font-mono text-sm text-[var(--color-fg-muted)]">
-        {total} claim{total === 1 ? "" : "s"} · {grounded} grounded · {flagged} flagged
+        {total} statement{total === 1 ? "" : "s"} · {grounded} grounded · {flagged}{" "}
+        {flagged === 1 ? "needs" : "need"} review
       </div>
+      {plantedCaught && (
+        <div className="mt-3 rounded-lg border border-[var(--color-grounded)]/40 bg-[var(--color-grounded-bg)] px-3 py-2 text-sm text-[var(--color-grounded)]">
+          The checker caught your planted claim and left the real ones alone. A known
+          defect, proven caught.
+        </div>
+      )}
     </div>
   );
 }

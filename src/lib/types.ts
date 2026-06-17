@@ -4,6 +4,7 @@ export type Verdict = "supported" | "partially" | "unsupported";
 export interface GeneratedClaim {
   text: string;
   type: ClaimType;
+  simulated?: boolean; // UI/persistence only — never shown to the judge
 }
 
 export interface JudgedClaim extends GeneratedClaim {

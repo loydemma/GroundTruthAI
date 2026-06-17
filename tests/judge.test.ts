@@ -1,34 +1,54 @@
 import { describe, it, expect } from "vitest";
-import { judgeClaim, JUDGE_PROMPT } from "../src/lib/pipeline/judge";
+import { judgeClaims, JUDGE_PROMPT, type JudgeItem } from "../src/lib/pipeline/judge";
 import { FakeModelClient } from "../src/lib/model/fake";
-import type { GeneratedClaim } from "../src/lib/types";
 
-const claim: GeneratedClaim = { text: "Customer will renew next quarter.", type: "commitment" };
+const items: JudgeItem[] = [
+  { claim: { text: "Customer will renew next quarter.", type: "commitment" }, transcript: "T1 renew next quarter" },
+  { claim: { text: "Customer asked for a discount.", type: "summary" }, transcript: "T2 nothing about discounts" },
+];
 
-describe("judgeClaim", () => {
-  it("parses verdict, confidence, and cited spans; prompt includes claim + transcript", async () => {
+describe("judgeClaims", () => {
+  it("judges every claim in a single call, aligning results to claims in order", async () => {
     const json = JSON.stringify({
-      verdict: "supported",
-      confidence: 0.92,
-      citedSpans: ["We will renew the contract next quarter"],
+      results: [
+        { verdict: "supported", confidence: 0.92, citedSpans: ["renew next quarter"] },
+        { verdict: "unsupported", confidence: 0.2, citedSpans: [] },
+      ],
     });
     const fake = new FakeModelClient([json]);
-    const { judged, response } = await judgeClaim(fake, claim, "TRANSCRIPT");
-    expect(judged.verdict).toBe("supported");
-    expect(judged.confidence).toBeCloseTo(0.92);
-    expect(judged.citedSpans).toEqual(["We will renew the contract next quarter"]);
-    expect(judged.text).toBe(claim.text);
-    expect(fake.prompts[0]).toContain("TRANSCRIPT");
-    expect(fake.prompts[0]).toContain(claim.text);
+
+    const { judged, response } = await judgeClaims(fake, items);
+
+    expect(fake.prompts).toHaveLength(1); // one call, not one-per-claim
+    expect(judged).toHaveLength(2);
+    expect(judged[0].verdict).toBe("supported");
+    expect(judged[0].confidence).toBeCloseTo(0.92);
+    expect(judged[0].citedSpans).toEqual(["renew next quarter"]);
+    expect(judged[0].text).toBe(items[0].claim.text);
+    expect(judged[1].verdict).toBe("unsupported");
+
+    // Prompt carries every claim and every transcript.
+    expect(fake.prompts[0]).toContain("renew next quarter");
+    expect(fake.prompts[0]).toContain("Customer asked for a discount.");
+    expect(fake.prompts[0]).toContain("T2 nothing about discounts");
     expect(JUDGE_PROMPT.length).toBeGreaterThan(0);
     expect(response.completionTokens).toBeGreaterThan(0);
   });
 
-  it("defaults missing citedSpans to an empty array", async () => {
+  it("defaults a missing citedSpans to an empty array", async () => {
     const fake = new FakeModelClient([
-      JSON.stringify({ verdict: "unsupported", confidence: 0.3 }),
+      JSON.stringify({ results: [{ verdict: "unsupported", confidence: 0.3 }] }),
     ]);
-    const { judged } = await judgeClaim(fake, claim, "t");
-    expect(judged.citedSpans).toEqual([]);
+    const { judged } = await judgeClaims(fake, [items[0]]);
+    expect(judged[0].citedSpans).toEqual([]);
+  });
+
+  it("defaults any claim the model omits to unsupported (never drops a claim)", async () => {
+    const fake = new FakeModelClient([JSON.stringify({ results: [] })]);
+    const { judged } = await judgeClaims(fake, items);
+    expect(judged).toHaveLength(2);
+    expect(judged[0].verdict).toBe("unsupported");
+    expect(judged[0].citedSpans).toEqual([]);
+    expect(judged[0].text).toBe(items[0].claim.text);
   });
 });
