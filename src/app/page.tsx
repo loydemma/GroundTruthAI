@@ -239,9 +239,12 @@ export default function Home() {
               The AI&apos;s summary of this call
             </h2>
             <p className="mt-1.5 max-w-2xl text-base leading-relaxed text-[var(--color-fg-muted)]">
-              The model wrote this. Next, hit{" "}
-              <span className="font-semibold text-[var(--color-fg)]">3. Check against the call</span>{" "}
-              to trace every line back to the transcript.
+              This is the summary the AI wrote, what it claims happened on the call. But it
+              could have hallucinated and made things up. By clicking{" "}
+              <span className="font-semibold text-[var(--color-fg)]">Check against the call</span>,
+              you activate a second AI, the{" "}
+              <span className="font-semibold text-[var(--color-fg)]">judge</span>, to verify the
+              first AI&apos;s summary and check it line-by-line against the call.
             </p>
           </div>
           <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">

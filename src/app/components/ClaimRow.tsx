@@ -36,7 +36,7 @@ export function ClaimRow({ claim }: { claim: VerifiedClaim }) {
           {claim.text}
           {claim.simulated && (
             <span className="ml-2 inline-flex items-center rounded-full border border-[var(--color-partial)]/50 bg-[var(--color-partial-bg)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-partial)]">
-              Simulated
+              Planted
             </span>
           )}
         </span>
