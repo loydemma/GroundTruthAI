@@ -104,17 +104,23 @@ export default function GoldenPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
           The mechanics
         </p>
-        <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
+        <h2 className="mt-3 text-lg font-semibold tracking-tight sm:text-xl">
           What happens when you press the button
         </h2>
         <p className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-fg-muted)] sm:text-lg">
-          The Judge reads five claims taken from three real support calls. Some claims are true to the
+          The Judge reads five claims taken from three support calls. Some claims are true to the
           call, some are made up. I already know the right answer for each, so the page can show how
           many the Judge got right.
         </p>
         <div className="mt-5 max-w-2xl">
-          <Collapsible summary="Under the hood (for the curious)">
-            <ol className="space-y-3 text-sm leading-relaxed text-[var(--color-fg-muted)]">
+          <Collapsible
+            summary={
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
+                Under the hood
+              </span>
+            }
+          >
+            <ol className="space-y-3 text-base leading-relaxed text-[var(--color-fg-muted)] sm:text-lg">
               <li>
                 <span className="font-semibold text-[var(--color-fg)]">1. Every click starts
                 fresh.</span> The request is force-dynamic with no caching, so each press re-runs the
@@ -139,7 +145,12 @@ export default function GoldenPage() {
               <li>
                 <span className="font-semibold text-[var(--color-fg)]">5. Compare and score.</span> A
                 scoring function checks each verdict against the hidden right answer and tallies how
-                many of the 5 it got right, plus precision, recall, and F1.
+                many of the 5 it got right, plus precision, recall, and F1. Precision is how often the
+                Judge is right when it flags a claim as made-up. Recall is how many of the made-up
+                claims it actually caught. F1 combines the two into one number, but not by averaging:
+                it uses the harmonic mean, which stays low unless both are high. So the Judge cannot
+                score well by being cautious in one way and sloppy in the other. It has to get both
+                right.
               </li>
             </ol>
           </Collapsible>
