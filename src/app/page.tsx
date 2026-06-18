@@ -63,7 +63,14 @@ export default function Home() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Could not generate the summary");
-      setSummary(simulate ? injectSimulatedClaim(data.claims, simClaimText) : data.claims);
+      const claims = data.claims as GeneratedClaim[];
+      if (!claims?.length) {
+        setError(
+          "Insufficient data to summarize. Please paste a call transcript, or click Load sample call.",
+        );
+        return;
+      }
+      setSummary(simulate ? injectSimulatedClaim(claims, simClaimText) : claims);
       setGenStage(data.generate);
       if (typeof data.remaining === "number") setRemaining(data.remaining);
     } catch (e) {
@@ -125,8 +132,8 @@ export default function Home() {
         </h1>
         <p className="mt-4 max-w-2xl text-lg leading-relaxed text-[var(--color-fg-muted)] sm:text-xl">
           Paste a customer call. The <span className="font-semibold text-[var(--color-fg)]">Summarizer</span>{" "}
-          drafts the summary, then a second, independent model — the{" "}
-          <span className="font-semibold text-[var(--color-fg)]">Judge</span> — checks every claim
+          drafts the summary. A separate, independent model called the{" "}
+          <span className="font-semibold text-[var(--color-fg)]">Judge</span> then checks every claim
           against the transcript and flags the ones the call never backed up.
         </p>
 
