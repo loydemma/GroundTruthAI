@@ -7,8 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio",
+    "sst:install": "sst install",
+    "deploy:aws": "sst deploy --stage production",
+    "remove:aws": "sst remove --stage production"
   },
   "dependencies": {
     "@google/genai": "^2.8.0",
@@ -28,6 +35,7 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "sst": "^4.15.2",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.9"
