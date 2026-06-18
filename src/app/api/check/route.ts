@@ -1,4 +1,4 @@
-import { GeminiClient, MODEL_NAME } from "@/lib/model/client";
+import { GroqClient, MODEL_NAME } from "@/lib/model/client";
 import { runCheck, combineMetrics } from "@/lib/pipeline/pipeline";
 import { getDb } from "@/lib/db/client";
 import { transcripts, analyses, claims as claimsTable } from "@/lib/db/schema";
@@ -28,8 +28,9 @@ export async function POST(req: Request) {
   const genStage = generate ?? { latencyMs: 0, promptTokens: 0, completionTokens: 0 };
 
   try {
-    const client = new GeminiClient();
-    const { claims: verified, stage: judgeStage } = await runCheck(client, transcript, claims);
+    // The Judge is a separate, independent model (Groq) from the Gemini Summarizer.
+    const judge = new GroqClient();
+    const { claims: verified, stage: judgeStage } = await runCheck(judge, transcript, claims);
     const metrics = combineMetrics(genStage, judgeStage, verified);
 
     const db = getDb();
