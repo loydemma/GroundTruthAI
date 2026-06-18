@@ -71,11 +71,14 @@ export function combineMetrics(
   };
 }
 
+// `judgeClient` defaults to the summarizer client; in production routes it is a
+// separate model (Groq) so the Judge is independent of the Summarizer it grades.
 export async function analyzeTranscript(
   client: ModelClient,
-  transcript: string
+  transcript: string,
+  judgeClient: ModelClient = client
 ): Promise<AnalysisResult> {
   const { claims: generated, stage: genStage } = await runGenerate(client, transcript);
-  const { claims, stage: judgeStage } = await runCheck(client, transcript, generated);
+  const { claims, stage: judgeStage } = await runCheck(judgeClient, transcript, generated);
   return { claims, metrics: combineMetrics(genStage, judgeStage, claims) };
 }

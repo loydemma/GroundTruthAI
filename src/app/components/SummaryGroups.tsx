@@ -10,10 +10,10 @@ export function SummaryGroups({ claims }: { claims: GeneratedClaim[] }) {
       {hasSimulated && (
         <p className="rounded-lg border border-[var(--color-partial)]/40 bg-[var(--color-partial-bg)] px-3 py-2.5 text-base leading-relaxed text-[var(--color-partial)]">
           <span className="font-semibold">Demo mode.</span> We planted one fake claim in this
-          summary on purpose, something that was never said on the call. The point of the judge is
-          that we don&apos;t just take one AI at its word. A second AI checks every line against the
-          call, and it was never told which one is the fake. Watch it catch the planted one on its
-          own.
+          summary on purpose, something that was never said on the call. The point of the Judge is
+          that we don&apos;t just take the Summarizer at its word. A second, independent model checks
+          every line against the call, and it was never told which one is the fake. Watch it catch
+          the planted one on its own.
         </p>
       )}
       {groups.map((g) => (

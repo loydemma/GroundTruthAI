@@ -1,4 +1,4 @@
-const STAGES = ["Generate", "Judge", "Verify"] as const;
+const STAGES = ["Summarize", "Judge", "Verify"] as const;
 
 export function PipelineStages({
   loading,
@@ -11,7 +11,7 @@ export function PipelineStages({
     <div className="flex flex-wrap items-center gap-2 text-xs">
       {STAGES.map((stage, i) => {
         const detail =
-          latencies && stage === "Generate"
+          latencies && stage === "Summarize"
             ? `${latencies.generateMs} ms`
             : latencies && stage === "Judge"
               ? `${latencies.judgeMs} ms`

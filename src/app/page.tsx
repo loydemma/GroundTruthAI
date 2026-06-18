@@ -107,7 +107,7 @@ export default function Home() {
         <Link
           href="/golden"
           className="group inline-flex items-center gap-1.5 rounded-full border border-[var(--color-accent)]/60 bg-[var(--color-accent)]/10 px-4 py-2 text-sm font-semibold text-[var(--color-accent)] transition hover:border-[var(--color-accent)] hover:bg-[var(--color-accent)]/20"
-          title="See the checker scored against a hand-labeled set: precision, recall, F1."
+          title="See the Judge scored against a hand-labeled set: precision, recall, F1."
         >
           How accurate is it?
           <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
@@ -124,7 +124,9 @@ export default function Home() {
           Catch the claims your AI summary <span className="gt-glow">made up</span>.
         </h1>
         <p className="mt-4 max-w-2xl text-lg leading-relaxed text-[var(--color-fg-muted)] sm:text-xl">
-          Paste a customer call. GroundTruthAI drafts the summary, then checks every claim
+          Paste a customer call. The <span className="font-semibold text-[var(--color-fg)]">Summarizer</span>{" "}
+          drafts the summary, then a second, independent model — the{" "}
+          <span className="font-semibold text-[var(--color-fg)]">Judge</span> — checks every claim
           against the transcript and flags the ones the call never backed up.
         </p>
 
@@ -194,7 +196,7 @@ export default function Home() {
             </span>
             <span className="mt-1.5 block max-w-2xl text-base leading-relaxed text-[var(--color-fg-muted)]">
               Modern AI rarely hallucinates on a clean call, which is good, but it makes a
-              detector hard to prove. So plant a known false claim and watch the checker catch
+              detector hard to prove. So plant a known false claim and watch the Judge catch
               it. In short: inject a known defect to prove it works.
             </span>
           </span>
@@ -236,15 +238,19 @@ export default function Home() {
         <div className="gt-fade-in mt-8 space-y-4">
           <div>
             <h2 className="text-lg font-semibold tracking-tight sm:text-xl">
-              The AI&apos;s summary of this call
+              The Summarizer&apos;s draft of this call
             </h2>
             <p className="mt-1.5 max-w-2xl text-base leading-relaxed text-[var(--color-fg-muted)]">
-              This is the summary the AI wrote, what it claims happened on the call. But it
-              could have hallucinated and made things up. By clicking{" "}
-              <span className="font-semibold text-[var(--color-fg)]">Check against the call</span>,
-              you activate a second AI, the{" "}
-              <span className="font-semibold text-[var(--color-fg)]">judge</span>, to verify the
-              first AI&apos;s summary and check it line-by-line against the call.
+              This is what the <span className="font-semibold text-[var(--color-fg)]">Summarizer</span>{" "}
+              (Google&apos;s Gemini) wrote it heard on the call — but an AI can hallucinate and state
+              things that were never said. Click{" "}
+              <span className="font-semibold text-[var(--color-fg)]">Check against the call</span> to
+              hand it to the <span className="font-semibold text-[var(--color-fg)]">Judge</span> — a
+              different, independent model (Meta&apos;s Llama 3.3, via Groq) — which checks every line
+              against the call. This is the standard{" "}
+              <span className="font-semibold text-[var(--color-fg)]">LLM-as-a-judge</span> setup, run
+              with two independent models on purpose: an AI grading its own work shares its own blind
+              spots, so a separate model does the checking.
             </p>
           </div>
           <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
@@ -268,7 +274,7 @@ export default function Home() {
             className="group flex items-center justify-between gap-3 rounded-xl border border-[var(--color-accent)]/40 bg-[var(--color-accent)]/5 px-4 py-3 text-base transition hover:bg-[var(--color-accent)]/10"
           >
             <span className="text-[var(--color-fg)]">
-              But can you trust the checker itself? See its precision, recall, and F1 on a
+              But can you trust the Judge itself? See its precision, recall, and F1 on a
               hand-labeled set.
             </span>
             <span

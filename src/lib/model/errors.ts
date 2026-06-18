@@ -17,7 +17,7 @@ export function modelErrorResponse(e: unknown): Response {
     return Response.json(
       {
         error:
-          "Gemini's free-tier rate limit was hit (5 requests/minute). Wait about 30 seconds and try again.",
+          "A model's free-tier rate limit was hit (the Summarizer and Judge each have their own). Wait about 30 seconds and try again.",
       },
       { status: 429, headers: { "Retry-After": "30" } }
     );

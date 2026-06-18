@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { Collapsible } from "../components/Collapsible";
 import type { GoldenEvaluation, GoldenItemResult } from "@/lib/golden/evaluate";
 
 function verdictLabel(unsupported: boolean) {
@@ -12,21 +11,25 @@ function verdictLabel(unsupported: boolean) {
   );
 }
 
-// One transcript per scenario, in first-seen order, for the expandable list.
-function transcriptsByScenario(items: GoldenItemResult[]) {
-  const seen = new Map<string, string>();
-  for (const it of items) if (!seen.has(it.scenario)) seen.set(it.scenario, it.transcript);
-  return [...seen.entries()].map(([scenario, transcript]) => ({ scenario, transcript }));
-}
-
 export default function GoldenPage() {
   const [data, setData] = useState<GoldenEvaluation | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [openRows, setOpenRows] = useState<Set<number>>(new Set());
+
+  function toggleRow(i: number) {
+    setOpenRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i);
+      else next.add(i);
+      return next;
+    });
+  }
 
   async function run() {
     setLoading(true);
     setError(null);
+    setOpenRows(new Set());
     try {
       const res = await fetch("/api/golden");
       const json = await res.json();
@@ -53,16 +56,16 @@ export default function GoldenPage() {
           <span aria-hidden className="transition-transform group-hover:-translate-x-0.5">
             ←
           </span>
-          Analyzer
+          Check a call
         </Link>
       </header>
 
       <section className="gt-hero mt-12 sm:mt-16">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
-          Who checks the checker?
+          Who checks the Judge?
         </p>
         <h1 className="mt-3 text-3xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
-          How often is the judge <span className="gt-glow">right</span>?
+          How often is the Judge <span className="gt-glow">right</span>?
         </h1>
         <div className="mt-5 max-w-2xl space-y-4 text-base leading-relaxed text-[var(--color-fg-muted)] sm:text-lg">
           <p>
@@ -77,9 +80,13 @@ export default function GoldenPage() {
             measure how often it gets it right.
           </p>
           <p>
-            That is what this page does for the judge. We wrote three support calls with claims we
-            already know the answer for, most of them built to trip it up, and the judge has no
-            idea which is which. Press the button and see how it does.
+            That is what this page does for the{" "}
+            <span className="font-semibold text-[var(--color-fg)]">Judge</span>. The Judge is a
+            different model from the one that writes the summaries — Meta&apos;s Llama 3.3 (via
+            Groq), not the Gemini Summarizer — because the right way to grade an AI is with an
+            independent one. We wrote three support calls with claims we already know the answer
+            for, most of them built to trip it up, and the Judge has no idea which is which. Press
+            the button and see how it does.
           </p>
         </div>
         <button
@@ -87,7 +94,7 @@ export default function GoldenPage() {
           disabled={loading}
           className="mt-8 rounded-xl bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {loading ? "Grading the judge…" : "Grade the judge"}
+          {loading ? "Grading the Judge…" : "Grade the Judge"}
         </button>
       </section>
 
@@ -101,7 +108,7 @@ export default function GoldenPage() {
         <div className="gt-fade-in mt-8 space-y-6">
           <div className="rounded-2xl border border-[var(--color-grounded)]/40 bg-[var(--color-grounded-bg)] p-5 sm:p-6">
             <div className="text-xl font-semibold tracking-tight text-[var(--color-grounded)] sm:text-2xl">
-              The judge got {data.correctCount} of {data.total} right.
+              The Judge got {data.correctCount} of {data.total} right.
             </div>
             <p className="mt-1.5 text-base text-[var(--color-fg-muted)]">
               It caught {data.score.tp} of {data.score.tp + data.score.fn} made-up claims, and
@@ -111,11 +118,11 @@ export default function GoldenPage() {
 
           <div>
             <h2 className="text-lg font-semibold tracking-tight sm:text-xl">
-              Every case, and how the judge ruled
+              Every case, and how the Judge ruled
             </h2>
             <p className="mt-1.5 max-w-2xl text-base text-[var(--color-fg-muted)]">
-              The judge saw only the call and the claim. It was never told which claims we planted
-              or what the right answer was.
+              The Judge saw only the call and the claim. It was never told which claims we planted
+              or what the right answer was. Click any row to read the full call it judged.
             </p>
             <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--color-border)]">
               <table className="w-full border-collapse text-left text-sm">
@@ -130,56 +137,83 @@ export default function GoldenPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.items.map((it, i) => (
-                    <tr
-                      key={i}
-                      className={`border-b border-[var(--color-border)] align-top last:border-0 ${
-                        it.correct ? "" : "bg-[var(--color-flagged-bg)]"
-                      }`}
-                    >
-                      <td className="whitespace-nowrap px-3 py-3 text-[var(--color-fg-muted)]">
-                        {it.scenario}
-                      </td>
-                      <td className="px-3 py-3 font-medium text-[var(--color-fg)]">
-                        {it.claimText}
-                      </td>
-                      <td className="px-3 py-3 text-[var(--color-fg-muted)]">{it.whyTrap}</td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                        {verdictLabel(it.expectedUnsupported)}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                        {verdictLabel(it.predictedUnsupported)}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3">
-                        {it.correct ? (
-                          <span className="font-semibold text-[var(--color-grounded)]">✓</span>
-                        ) : (
-                          <span className="font-semibold text-[var(--color-flagged)]">✗ missed</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                  {data.items.map((it: GoldenItemResult, i) => {
+                    const open = openRows.has(i);
+                    return (
+                      <FragmentRow
+                        key={i}
+                        it={it}
+                        i={i}
+                        open={open}
+                        onToggle={() => toggleRow(i)}
+                      />
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           </div>
-
-          <Collapsible summary="Read the 3 call transcripts">
-            <div className="space-y-4">
-              {transcriptsByScenario(data.items).map((g) => (
-                <div key={g.scenario}>
-                  <div className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)]">
-                    {g.scenario}
-                  </div>
-                  <pre className="mt-1.5 whitespace-pre-wrap font-mono text-sm leading-relaxed text-[var(--color-fg)]">
-                    {g.transcript}
-                  </pre>
-                </div>
-              ))}
-            </div>
-          </Collapsible>
         </div>
       )}
     </main>
+  );
+}
+
+function FragmentRow({
+  it,
+  i,
+  open,
+  onToggle,
+}: {
+  it: GoldenItemResult;
+  i: number;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  const tone = it.correct ? "" : "bg-[var(--color-flagged-bg)]";
+  return (
+    <>
+      <tr className={`border-b border-[var(--color-border)] align-top ${open ? "" : "last:border-0"} ${tone}`}>
+        <td className="whitespace-nowrap px-3 py-3 text-[var(--color-fg-muted)]">
+          <button
+            onClick={onToggle}
+            aria-expanded={open}
+            aria-controls={`transcript-${i}`}
+            className="flex items-center gap-1.5 text-left transition hover:text-[var(--color-fg)]"
+          >
+            <span
+              aria-hidden
+              className={`text-[var(--color-fg-faint)] transition-transform ${open ? "rotate-90" : ""}`}
+            >
+              ▸
+            </span>
+            {it.scenario}
+          </button>
+        </td>
+        <td className="px-3 py-3 font-medium text-[var(--color-fg)]">{it.claimText}</td>
+        <td className="px-3 py-3 text-[var(--color-fg-muted)]">{it.whyTrap}</td>
+        <td className="whitespace-nowrap px-3 py-3">{verdictLabel(it.expectedUnsupported)}</td>
+        <td className="whitespace-nowrap px-3 py-3">{verdictLabel(it.predictedUnsupported)}</td>
+        <td className="whitespace-nowrap px-3 py-3">
+          {it.correct ? (
+            <span className="font-semibold text-[var(--color-grounded)]">✓</span>
+          ) : (
+            <span className="font-semibold text-[var(--color-flagged)]">✗ missed</span>
+          )}
+        </td>
+      </tr>
+      {open && (
+        <tr id={`transcript-${i}`} className={`border-b border-[var(--color-border)] last:border-0 ${tone}`}>
+          <td colSpan={6} className="px-3 pb-4 pt-0">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
+              {it.scenario} — full call the Judge saw
+            </div>
+            <pre className="mt-1.5 whitespace-pre-wrap font-mono text-sm leading-relaxed text-[var(--color-fg)]">
+              {it.transcript}
+            </pre>
+          </td>
+        </tr>
+      )}
+    </>
   );
 }

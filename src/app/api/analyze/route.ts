@@ -1,4 +1,4 @@
-import { GeminiClient, MODEL_NAME } from "@/lib/model/client";
+import { GeminiClient, GroqClient, MODEL_NAME } from "@/lib/model/client";
 import { analyzeTranscript } from "@/lib/pipeline/pipeline";
 import { getDb } from "@/lib/db/client";
 import { transcripts, analyses, claims as claimsTable } from "@/lib/db/schema";
@@ -17,8 +17,8 @@ export async function POST(req: Request) {
   }
 
   try {
-    const client = new GeminiClient();
-    const result = await analyzeTranscript(client, transcript);
+    // Summarizer = Gemini; Judge = a separate, independent model on Groq.
+    const result = await analyzeTranscript(new GeminiClient(), transcript, new GroqClient());
 
     const db = getDb();
     const [t] = await db

@@ -34,7 +34,7 @@ export function VerdictBanner({ claims }: { claims: VerifiedClaim[] }) {
       </div>
       {plantedCaught && (
         <div className="mt-3 rounded-lg border border-[var(--color-grounded)]/40 bg-[var(--color-grounded-bg)] px-3 py-2.5 text-base leading-relaxed text-[var(--color-grounded)]">
-          The checker caught your planted claim and left the real ones alone. A known
+          The Judge caught your planted claim and left the real ones alone. A known
           defect, proven caught.
         </div>
       )}
