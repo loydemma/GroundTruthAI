@@ -1,8 +1,7 @@
 import { GeminiClient } from "@/lib/model/client";
 import { judgeClaims } from "@/lib/pipeline/judge";
-import { verifyClaim } from "@/lib/pipeline/verify";
 import { GOLDEN_SET } from "@/lib/golden/dataset";
-import { scoreGolden, type GoldenPrediction } from "@/lib/golden/score";
+import { evaluateGolden } from "@/lib/golden/evaluate";
 import { checkRateLimit, tooManyRequests } from "@/lib/rateLimit";
 import { modelErrorResponse } from "@/lib/model/errors";
 
@@ -22,12 +21,7 @@ export async function GET(req: Request) {
         transcript: item.transcript,
       }))
     );
-    const predictions: GoldenPrediction[] = GOLDEN_SET.map((item, i) => {
-      const verified = verifyClaim(judged[i], item.transcript);
-      const predictedUnsupported = judged[i].verdict !== "supported" || !verified.verified;
-      return { trulyUnsupported: item.trulyUnsupported, predictedUnsupported };
-    });
-    return Response.json({ score: scoreGolden(predictions), n: GOLDEN_SET.length });
+    return Response.json(evaluateGolden(judged));
   } catch (e) {
     console.error("golden failed", e);
     return modelErrorResponse(e);
