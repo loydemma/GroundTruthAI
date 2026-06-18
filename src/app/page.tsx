@@ -30,7 +30,7 @@ export default function Home() {
 
   // Show remaining daily tries on load without spending one.
   useEffect(() => {
-    fetch("/api/generate")
+    fetch("/api/summarize")
       .then((r) => r.json())
       .then((d) => setRemaining(d.remaining ?? null))
       .catch(() => {});
@@ -56,7 +56,7 @@ export default function Home() {
     setResult(null);
     setError(null);
     try {
-      const res = await fetch("/api/generate", {
+      const res = await fetch("/api/summarize", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ transcript }),
@@ -81,7 +81,7 @@ export default function Home() {
     setChecking(true);
     setError(null);
     try {
-      const res = await fetch("/api/check", {
+      const res = await fetch("/api/judge", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ title: "manual", transcript, claims: summary, generate: genStage }),
