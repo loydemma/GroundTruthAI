@@ -104,6 +104,9 @@ export default function Home() {
     }
   }
 
+  const charsLeft = MAX_TRANSCRIPT_CHARS - transcript.length;
+  const overLimit = charsLeft < 0;
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
       <header className="flex flex-wrap items-center justify-between gap-3">
@@ -179,15 +182,18 @@ export default function Home() {
 
         <textarea
           value={transcript}
-          onChange={(e) => changeTranscript(e.target.value.slice(0, MAX_TRANSCRIPT_CHARS))}
-          maxLength={MAX_TRANSCRIPT_CHARS}
+          onChange={(e) => changeTranscript(e.target.value)}
           placeholder="Paste your call transcript here, or load the sample above…"
           className="mt-4 h-44 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4 font-mono text-sm text-[var(--color-fg)] outline-none transition placeholder:text-[var(--color-fg-faint)] focus:border-[var(--color-accent)] focus:shadow-[0_0_0_3px_rgba(34,211,238,0.15)]"
         />
-        <p className="mt-2 text-right font-mono text-sm text-[var(--color-fg-faint)]">
-          {(MAX_TRANSCRIPT_CHARS - transcript.length).toLocaleString()} characters left
-          {" · "}
-          {MAX_TRANSCRIPT_CHARS.toLocaleString()} max
+        <p
+          className={`mt-2 text-right font-mono text-sm ${
+            charsLeft <= 0 ? "text-[var(--color-flagged)]" : "text-[var(--color-fg-faint)]"
+          }`}
+        >
+          {overLimit
+            ? `${(-charsLeft).toLocaleString()} over the ${MAX_TRANSCRIPT_CHARS.toLocaleString()}-character max`
+            : `${charsLeft.toLocaleString()} characters left · ${MAX_TRANSCRIPT_CHARS.toLocaleString()} max`}
         </p>
 
         <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--color-accent)]/50 bg-[var(--color-accent)]/5 p-4 transition hover:border-[var(--color-accent)] hover:bg-[var(--color-accent)]/10">
@@ -212,7 +218,7 @@ export default function Home() {
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <button
             onClick={generate}
-            disabled={generating || checking || !transcript.trim()}
+            disabled={generating || checking || !transcript.trim() || overLimit}
             className="rounded-xl bg-[var(--color-accent)] px-5 py-3 text-base font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-40"
           >
             {generating ? "Generating summary…" : summary ? "Regenerate summary" : "2. Generate summary"}
