@@ -69,24 +69,25 @@ export default function GoldenPage() {
         </h1>
         <div className="mt-5 max-w-2xl space-y-4 text-base leading-relaxed text-[var(--color-fg-muted)] sm:text-lg">
           <p>
-            Normal software is predictable. The same input always gives the same output, so you
-            can test it. AI is not. Ask it the same question twice and you can get two different
-            answers, which makes it hard to trust.
+            Normal software is{" "}
+            <span className="font-semibold text-[var(--color-fg)]">deterministic</span>: the same
+            input always gives the same output, so you can test it. AI is{" "}
+            <span className="font-semibold text-[var(--color-fg)]">non-deterministic</span>. Ask it
+            the same question twice and you can get two different answers, which makes it hard to
+            trust.
           </p>
           <p>
-            A <span className="font-semibold text-[var(--color-fg)]">golden set</span> is how
-            teams test AI anyway. It is a fixed set of example inputs, each paired with the answer
-            we expect and the rule for judging a response. You run the AI against the set and
-            measure how often it gets it right.
+            A <span className="font-semibold text-[var(--color-fg)]">golden set</span> is how teams
+            test AI: a fixed set of inputs, each paired with the answer we expect and the rule for
+            judging a response. You run the AI against it and measure how often it gets it right.
           </p>
           <p>
             That is what this page does for the{" "}
-            <span className="font-semibold text-[var(--color-fg)]">Judge</span>. The Judge is a
-            different model from the one that writes the summaries — Meta&apos;s Llama 3.3 (via
-            Groq), not the Gemini Summarizer — because the right way to grade an AI is with an
-            independent one. We wrote three support calls with claims we already know the answer
-            for, most of them built to trip it up, and the Judge has no idea which is which. Press
-            the button and see how it does.
+            <span className="font-semibold text-[var(--color-fg)]">Judge</span>. The Judge (Meta&apos;s
+            Llama 3.3, via Groq) is a different model from the one that writes the summaries (Gemini),
+            because the right way to grade an AI is with an independent one. This golden set has three
+            support calls with claims I already know the verdict for, most built to trip it up, and the
+            Judge has no idea which is which. Press the button and see how it does.
           </p>
         </div>
         <button
