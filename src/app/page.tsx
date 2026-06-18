@@ -107,9 +107,9 @@ export default function Home() {
         <Link
           href="/golden"
           className="group inline-flex items-center gap-1.5 rounded-full border border-[var(--color-accent)]/60 bg-[var(--color-accent)]/10 px-4 py-2 text-sm font-semibold text-[var(--color-accent)] transition hover:border-[var(--color-accent)] hover:bg-[var(--color-accent)]/20"
-          title="See the Judge scored against a hand-labeled set: precision, recall, F1."
+          title="See how accurate the Judge is on a hand-labeled test set: precision, recall, F1."
         >
-          How accurate is it?
+          How accurate is the Judge?
           <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
             →
           </span>
