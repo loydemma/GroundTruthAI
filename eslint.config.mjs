@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // SST / OpenNext generated output + the SST config's intentional triple-slash ref.
+    ".sst/**",
+    ".open-next/**",
+    "sst-env.d.ts",
+    "sst.config.ts",
   ]),
 ]);
 

@@ -16,6 +16,8 @@ export const metadata: Metadata = {
   title: "GroundTruthAI: faithfulness checks for AI call summaries",
   description:
     "Summarize a customer call, then catch the AI when it invents a claim the transcript never supports.",
+  // Keep this demo out of search results (paired with the disallow-all robots.ts).
+  robots: { index: false, follow: false },
 };
 
 export default function RootLayout({
