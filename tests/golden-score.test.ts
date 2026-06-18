@@ -18,7 +18,21 @@ describe("scoreGolden", () => {
     expect(r.recall).toBeCloseTo(2 / 3, 5);
     expect(r.f1).toBeCloseTo(2 / 3, 5);
   });
+
+  it("returns the raw confusion-matrix counts", () => {
+    const r = scoreGolden(predictions);
+    expect(r).toMatchObject({ tp: 2, fp: 1, fn: 1, tn: 1 });
+  });
+
   it("returns zeros for an empty set", () => {
-    expect(scoreGolden([])).toEqual({ precision: 0, recall: 0, f1: 0 });
+    expect(scoreGolden([])).toEqual({
+      precision: 0,
+      recall: 0,
+      f1: 0,
+      tp: 0,
+      fp: 0,
+      fn: 0,
+      tn: 0,
+    });
   });
 });
