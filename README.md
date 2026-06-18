@@ -9,32 +9,38 @@ call doesn't support.
 
 ## How it works
 
+GroundTruthAI uses two independent AI models — the standard **LLM-as-a-judge** pattern:
+
 1. Paste a call transcript, or load the sample call.
-2. **Generate** — the AI drafts a structured summary of the call.
-3. **Check** — every claim is traced back to the transcript, and any the call doesn't back up
-   are flagged for review.
+2. **Summarizer** — one model drafts a structured summary of the call.
+3. **Judge** — a *different, independent* model traces every claim back to the transcript and
+   flags any the call doesn't back up.
+
+Using a second, separate model is deliberate: an AI grading its own work shares its own blind
+spots, so a different model does the checking.
 
 ## Demo mode
 
 Modern models rarely hallucinate on a clean call, which is good but makes a checker hard to show
 off. Turn on **Simulate a hallucination** to plant one known false claim into the real summary and
-watch the checker catch it, while leaving the genuine claims untouched. The planted claim is always
+watch the Judge catch it, while leaving the genuine claims untouched. The planted claim is always
 clearly labeled. It is a demonstration, never hidden.
 
-## How accurate is the checker?
+## How accurate is the Judge?
 
-The app includes an accuracy page that scores the checker against a hand-labeled set of claims and
-reports its precision, recall, and F1, so the checker's own reliability is measurable rather than
+The app includes an accuracy page that scores the Judge against a hand-labeled set of claims and
+reports its precision, recall, and F1, so the Judge's own reliability is measurable rather than
 just asserted.
 
 ## Stack
 
-Next.js (App Router), TypeScript, Tailwind, Postgres, and Google Gemini.
+Next.js (App Router), TypeScript, Tailwind, and Postgres. Two model providers: Google Gemini
+(Summarizer) and Meta Llama 3.3 via Groq (Judge).
 
 ## Run it locally
 
 ```bash
 npm install
-cp .env.example .env   # add your database URL and Google API key
+cp .env.example .env   # add your database URL and the two model API keys
 npm run dev
 ```
