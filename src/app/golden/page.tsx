@@ -86,8 +86,8 @@ export default function GoldenPage() {
             <span className="font-semibold text-[var(--color-fg)]">Judge</span>. The Judge (Meta&apos;s
             Llama 3.3, via Groq) is a different model from the one that writes the summaries (Gemini),
             because the right way to grade an AI is with an independent one. This golden set has three
-            support calls with claims I already know the verdict for, most built to trip it up, and the
-            Judge has no idea which is which. Press the button and see how it does.
+            support calls and five claims I already know the verdict for, most built to trip it up, and
+            the Judge has no idea which is which. Press the button and see how it does.
           </p>
         </div>
         <button
@@ -97,6 +97,40 @@ export default function GoldenPage() {
         >
           {loading ? "Grading the Judge…" : "Grade the Judge"}
         </button>
+      </section>
+
+      <section className="mt-12 sm:mt-16">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
+          The mechanics
+        </p>
+        <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
+          What happens when you press the button
+        </h2>
+        <ol className="mt-5 max-w-2xl space-y-4 text-base leading-relaxed text-[var(--color-fg-muted)] sm:text-lg">
+          <li>
+            <span className="font-semibold text-[var(--color-fg)]">1. Every click starts over.</span>{" "}
+            There is no caching. Each time you press the button the whole set runs again from scratch,
+            so the score you see is how the Judge does on this run, not a saved result.
+          </li>
+          <li>
+            <span className="font-semibold text-[var(--color-fg)]">2. Three calls, five claims.</span>{" "}
+            The set is three real support-call transcripts with five claims written about them. Some
+            claims are things the call actually backs up. Others are made up but sound believable. I
+            wrote down the right answer for each one ahead of time.
+          </li>
+          <li>
+            <span className="font-semibold text-[var(--color-fg)]">3. The Judge grades all five at
+            once.</span> The five claims and their transcripts go to the Judge (Meta&apos;s Llama 3.3,
+            via Groq) in a single request. It only sees each call and its claim. It never sees my
+            answers. For each one it says supported, partially, or unsupported.
+          </li>
+          <li>
+            <span className="font-semibold text-[var(--color-fg)]">4. We compare and score.</span> Each
+            of the Judge&apos;s verdicts is checked against the answer I wrote down. The page shows how
+            many it got right, plus precision, recall, and F1: how often it is correct when it flags a
+            claim, and how many bad claims it lets through.
+          </li>
+        </ol>
       </section>
 
       {error && (
