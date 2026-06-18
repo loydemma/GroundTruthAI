@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { Collapsible } from "../components/Collapsible";
 import type { GoldenEvaluation, GoldenItemResult } from "@/lib/golden/evaluate";
 
 function verdictLabel(unsupported: boolean) {
@@ -106,31 +107,43 @@ export default function GoldenPage() {
         <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">
           What happens when you press the button
         </h2>
-        <ol className="mt-5 max-w-2xl space-y-4 text-base leading-relaxed text-[var(--color-fg-muted)] sm:text-lg">
-          <li>
-            <span className="font-semibold text-[var(--color-fg)]">1. Every click starts over.</span>{" "}
-            There is no caching. Each time you press the button the whole set runs again from scratch,
-            so the score you see is how the Judge does on this run, not a saved result.
-          </li>
-          <li>
-            <span className="font-semibold text-[var(--color-fg)]">2. Three calls, five claims.</span>{" "}
-            The set is three real support-call transcripts with five claims written about them. Some
-            claims are things the call actually backs up. Others are made up but sound believable. I
-            wrote down the right answer for each one ahead of time.
-          </li>
-          <li>
-            <span className="font-semibold text-[var(--color-fg)]">3. The Judge grades all five at
-            once.</span> The five claims and their transcripts go to the Judge (Meta&apos;s Llama 3.3,
-            via Groq) in a single request. It only sees each call and its claim. It never sees my
-            answers. For each one it says supported, partially, or unsupported.
-          </li>
-          <li>
-            <span className="font-semibold text-[var(--color-fg)]">4. We compare and score.</span> Each
-            of the Judge&apos;s verdicts is checked against the answer I wrote down. The page shows how
-            many it got right, plus precision, recall, and F1: how often it is correct when it flags a
-            claim, and how many bad claims it lets through.
-          </li>
-        </ol>
+        <p className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-fg-muted)] sm:text-lg">
+          The Judge reads five claims taken from three real support calls. Some claims are true to the
+          call, some are made up. I already know the right answer for each, so the page can show how
+          many the Judge got right.
+        </p>
+        <div className="mt-5 max-w-2xl">
+          <Collapsible summary="Under the hood (for the curious)">
+            <ol className="space-y-3 text-sm leading-relaxed text-[var(--color-fg-muted)]">
+              <li>
+                <span className="font-semibold text-[var(--color-fg)]">1. Every click starts
+                fresh.</span> The request is force-dynamic with no caching, so each press re-runs the
+                whole set. The score is for that run, not a saved result.
+              </li>
+              <li>
+                <span className="font-semibold text-[var(--color-fg)]">2. The set is 3 calls and 5
+                claims:</span> Double charge (2 claims, 1 real and 1 made-up), Login help (2 claims, 1
+                real and 1 made-up), and Cancellation (1 made-up claim). Each claim has a hidden right
+                answer labeled ahead of time.
+              </li>
+              <li>
+                <span className="font-semibold text-[var(--color-fg)]">3. One request to the
+                Judge.</span> All 5 claims and their transcripts are bundled into a single prompt and
+                sent to the Judge (Meta&apos;s Llama 3.3, via Groq) in one call. It sees only each call
+                and its claim, never the right answers.
+              </li>
+              <li>
+                <span className="font-semibold text-[var(--color-fg)]">4. A verdict per claim.</span>{" "}
+                The Judge returns supported, partially, or unsupported for each of the 5 claims.
+              </li>
+              <li>
+                <span className="font-semibold text-[var(--color-fg)]">5. Compare and score.</span> A
+                scoring function checks each verdict against the hidden right answer and tallies how
+                many of the 5 it got right, plus precision, recall, and F1.
+              </li>
+            </ol>
+          </Collapsible>
+        </div>
       </section>
 
       {error && (
