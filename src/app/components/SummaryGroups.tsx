@@ -4,18 +4,8 @@ import { groupClaims, CATEGORY_LABEL } from "@/lib/ui/claimGroups";
 // The generated summary, grouped by claim type into a readable list (no verdicts).
 export function SummaryGroups({ claims }: { claims: GeneratedClaim[] }) {
   const groups = groupClaims(claims);
-  const hasSimulated = claims.some((c) => c.simulated);
   return (
     <div className="space-y-5">
-      {hasSimulated && (
-        <p className="rounded-lg border border-[var(--color-partial)]/40 bg-[var(--color-partial-bg)] px-3 py-2.5 text-base leading-relaxed text-[var(--color-partial)]">
-          <span className="font-semibold">Demo mode.</span> We planted one fake claim in this
-          summary on purpose, something that was never said on the call. The point of the Judge is
-          that we don&apos;t just take the Summarizer at its word. A second, independent model checks
-          every line against the call, and it was never told which one is the fake. Watch it catch
-          the planted one on its own.
-        </p>
-      )}
       {groups.map((g) => (
         <div key={g.type}>
           <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)]">
