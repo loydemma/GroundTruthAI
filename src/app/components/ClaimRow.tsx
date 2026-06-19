@@ -1,5 +1,5 @@
 import type { VerifiedClaim } from "@/lib/types";
-import { verdictPill, type Pill } from "@/lib/ui/verdictDisplay";
+import { verdictPill, noSourceReason, type Pill } from "@/lib/ui/verdictDisplay";
 
 const PILL: Record<Pill, { label: string; icon: string; cls: string }> = {
   grounded: {
@@ -49,11 +49,7 @@ export function ClaimRow({ claim }: { claim: VerifiedClaim }) {
 
       <div className="px-3 pb-3 pl-4">
         {pill === "no-source" ? (
-          <p className="text-sm text-[var(--color-flagged)]">
-            {claim.citedSpans.length > 0 && !claim.verified
-              ? "The cited evidence isn't in the transcript."
-              : "Nothing in the transcript supports this."}
-          </p>
+          <p className="text-sm text-[var(--color-flagged)]">{noSourceReason(claim)}</p>
         ) : (
           <div className="space-y-1.5">
             <p className="text-xs uppercase tracking-wider text-[var(--color-fg-muted)]">

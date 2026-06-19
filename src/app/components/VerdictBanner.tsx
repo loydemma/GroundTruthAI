@@ -1,12 +1,15 @@
 import type { VerifiedClaim } from "@/lib/types";
+import { noSourceReason } from "@/lib/ui/verdictDisplay";
 
 export function VerdictBanner({ claims }: { claims: VerifiedClaim[] }) {
   const total = claims.length;
-  const flagged = claims.filter((c) => c.flagged).length;
+  const flaggedClaims = claims.filter((c) => c.flagged);
+  const flagged = flaggedClaims.length;
   const grounded = total - flagged;
   const ok = flagged === 0;
   const planted = claims.find((c) => c.simulated);
   const plantedCaught = planted?.flagged === true;
+  const realFlagged = flaggedClaims.filter((c) => !c.simulated).length;
 
   const headline = ok
     ? "Every line traced back to the call"
@@ -32,10 +35,40 @@ export function VerdictBanner({ claims }: { claims: VerifiedClaim[] }) {
         {total} statement{total === 1 ? "" : "s"} · {grounded} grounded · {flagged}{" "}
         {flagged === 1 ? "needs" : "need"} review
       </div>
+      {!ok && (
+        <ul className="mt-4 space-y-2">
+          {flaggedClaims.map((c, i) => (
+            <li
+              key={i}
+              className="rounded-lg border border-[var(--color-flagged)]/40 bg-[var(--color-bg)]/40 px-3 py-2.5"
+            >
+              <span className="text-base font-medium leading-snug text-[var(--color-fg)]">
+                {c.text}
+                {c.simulated && (
+                  <span className="ml-2 inline-flex items-center rounded-full border border-[var(--color-partial)]/50 bg-[var(--color-partial-bg)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-partial)]">
+                    Planted
+                  </span>
+                )}
+              </span>
+              <p className="mt-1 text-sm text-[var(--color-flagged)]">{noSourceReason(c)}</p>
+            </li>
+          ))}
+        </ul>
+      )}
       {plantedCaught && (
         <div className="mt-3 rounded-lg border border-[var(--color-grounded)]/40 bg-[var(--color-grounded-bg)] px-3 py-2.5 text-base leading-relaxed text-[var(--color-grounded)]">
-          The Judge caught your planted claim and left the real ones alone. A known
-          defect, proven caught.
+          {realFlagged === 0 ? (
+            <>
+              The Judge caught your planted claim and left the real ones alone. A known
+              defect, proven caught.
+            </>
+          ) : (
+            <>
+              The Judge caught your planted claim — a known defect, proven caught. It also
+              flagged {realFlagged} other line{realFlagged === 1 ? "" : "s"} for review
+              (above).
+            </>
+          )}
         </div>
       )}
     </div>

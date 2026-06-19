@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { verdictPill } from "../src/lib/ui/verdictDisplay";
+import { verdictPill, noSourceReason } from "../src/lib/ui/verdictDisplay";
 
 describe("verdictPill", () => {
   it("is grounded when supported and the evidence is verified", () => {
@@ -21,5 +21,19 @@ describe("verdictPill", () => {
 
   it("is no-source when partially supported but not verified", () => {
     expect(verdictPill({ verdict: "partially", verified: false })).toBe("no-source");
+  });
+});
+
+describe("noSourceReason", () => {
+  it("points at the missing cited evidence when the judge cited spans it can't verify", () => {
+    expect(noSourceReason({ citedSpans: ["a quote"], verified: false })).toBe(
+      "The cited evidence isn't in the transcript.",
+    );
+  });
+
+  it("says nothing supports the claim when there are no cited spans", () => {
+    expect(noSourceReason({ citedSpans: [], verified: false })).toBe(
+      "Nothing in the transcript supports this.",
+    );
   });
 });

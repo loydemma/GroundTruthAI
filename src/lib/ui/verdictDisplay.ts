@@ -10,3 +10,12 @@ export function verdictPill(claim: { verdict: Verdict; verified: boolean }): Pil
   if (!claim.verified || claim.verdict === "unsupported") return "no-source";
   return "partial";
 }
+
+// Human-readable explanation for a flagged ("no source") claim. Distinguishes a
+// claim the judge cited evidence for that verification couldn't find from one
+// with no support at all.
+export function noSourceReason(claim: { citedSpans: string[]; verified: boolean }): string {
+  return claim.citedSpans.length > 0 && !claim.verified
+    ? "The cited evidence isn't in the transcript."
+    : "Nothing in the transcript supports this.";
+}

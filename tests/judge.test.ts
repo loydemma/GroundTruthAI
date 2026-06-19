@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { judgeClaims, JUDGE_PROMPT, type JudgeItem } from "../src/lib/pipeline/judge";
+import { judgeClaims, JUDGE_PROMPT, JUDGE_PROMPT_V1, type JudgeItem } from "../src/lib/pipeline/judge";
 import { FakeModelClient } from "../src/lib/model/fake";
 
 const items: JudgeItem[] = [
@@ -33,6 +33,11 @@ describe("judgeClaims", () => {
     expect(fake.prompts[0]).toContain("T2 nothing about discounts");
     expect(JUDGE_PROMPT.length).toBeGreaterThan(0);
     expect(response.completionTokens).toBeGreaterThan(0);
+  });
+
+  it("keeps the old prompt available and distinct for the case study", () => {
+    expect(JUDGE_PROMPT_V1.length).toBeGreaterThan(0);
+    expect(JUDGE_PROMPT_V1).not.toBe(JUDGE_PROMPT);
   });
 
   it("defaults a missing citedSpans to an empty array", async () => {

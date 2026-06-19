@@ -4,11 +4,10 @@ import Link from "next/link";
 import { SAMPLE_TRANSCRIPTS } from "@/samples/transcripts";
 import { injectSimulatedClaim } from "@/lib/sim/inject";
 import { MAX_TRANSCRIPT_CHARS } from "@/lib/limits";
-import { MetricsPanel } from "./components/MetricsPanel";
 import { SummaryGroups } from "./components/SummaryGroups";
 import { CheckedSummary } from "./components/CheckedSummary";
 import { Collapsible } from "./components/Collapsible";
-import { TranscriptPane } from "./components/TranscriptPane";
+import { JudgePromptCaseStudy } from "./components/JudgePromptCaseStudy";
 import { VerdictBanner } from "./components/VerdictBanner";
 import { PipelineStages } from "./components/PipelineStages";
 import type { AnalysisResult, GeneratedClaim, StageMetrics } from "@/lib/types";
@@ -275,27 +274,22 @@ export default function Home() {
       {result && (
         <div className="gt-fade-in mt-8 space-y-5">
           <VerdictBanner claims={result.claims} />
-          <CheckedSummary claims={result.claims} />
-          <Collapsible summary="Under the hood — pipeline & cost">
-            <MetricsPanel m={result.metrics} />
+          <Collapsible
+            summary={
+              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
+                All {result.claims.length} statements from the call
+              </span>
+            }
+          >
+            <CheckedSummary claims={result.claims} />
           </Collapsible>
-          <Collapsible summary="View full transcript">
-            <TranscriptPane transcript={transcript} highlights={[]} />
-          </Collapsible>
+          <JudgePromptCaseStudy />
           <Link
             href="/golden"
-            className="group flex items-center justify-between gap-3 rounded-xl border border-[var(--color-accent)]/40 bg-[var(--color-accent)]/5 px-4 py-3 text-base transition hover:bg-[var(--color-accent)]/10"
+            className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-5 py-3 text-base font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)]"
           >
-            <span className="text-[var(--color-fg)]">
-              But can you trust the Judge itself? See its precision, recall, and F1 on a
-              hand-labeled set.
-            </span>
-            <span
-              aria-hidden
-              className="text-[var(--color-accent)] transition-transform group-hover:translate-x-0.5"
-            >
-              →
-            </span>
+            See the Judge&apos;s accuracy
+            <span aria-hidden>→</span>
           </Link>
         </div>
       )}
