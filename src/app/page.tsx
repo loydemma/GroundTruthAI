@@ -105,6 +105,7 @@ export default function Home() {
 
   const charsLeft = MAX_TRANSCRIPT_CHARS - transcript.length;
   const overLimit = charsLeft < 0;
+  const hasSimulated = !!summary?.some((c) => c.simulated);
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
@@ -222,16 +223,7 @@ export default function Home() {
           >
             {generating ? "Generating summary…" : summary ? "Regenerate summary" : "2. Generate summary"}
           </button>
-          <span aria-hidden className="text-[var(--color-fg-faint)]">→</span>
-          <button
-            onClick={check}
-            disabled={!summary || generating || checking}
-            title={!summary ? "Generate the summary first" : undefined}
-            className="rounded-xl bg-[var(--color-accent)] px-5 py-3 text-base font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {checking ? "Checking…" : "3. Check against the call"}
-          </button>
-          {(generating || checking) && <PipelineStages loading />}
+          {generating && <PipelineStages loading />}
           {remaining !== null && (
             <span className="ml-auto font-mono text-sm text-[var(--color-fg-faint)]">
               {remaining} {remaining === 1 ? "try" : "tries"} left today
@@ -248,25 +240,48 @@ export default function Home() {
 
       {summary && !result && (
         <div className="gt-fade-in mt-8 space-y-4">
-          <div>
-            <h2 className="text-lg font-semibold tracking-tight sm:text-xl">
-              The Summarizer&apos;s draft of this call
-            </h2>
-            <p className="mt-1.5 max-w-2xl text-base leading-relaxed text-[var(--color-fg-muted)]">
-              This is what the <span className="font-semibold text-[var(--color-fg)]">Summarizer</span>{" "}
-              (Google&apos;s Gemini) wrote it heard on the call — but an AI can hallucinate and state
-              things that were never said. Click{" "}
-              <span className="font-semibold text-[var(--color-fg)]">Check against the call</span> to
-              hand it to the <span className="font-semibold text-[var(--color-fg)]">Judge</span> — a
-              different, independent model (Meta&apos;s Llama 3.3, via Groq) — which checks every line
-              against the call. This is the standard{" "}
-              <span className="font-semibold text-[var(--color-fg)]">LLM-as-a-judge</span> setup, run
-              with two independent models on purpose: an AI grading its own work shares its own blind
-              spots, so a separate model does the checking.
+          <span className="block text-sm font-semibold uppercase tracking-wider text-[var(--color-fg-muted)]">
+            AI summary
+            <span className="text-[var(--color-fg-faint)]">
+              {" · "}
+              {summary.length} {summary.length === 1 ? "claim" : "claims"}
+            </span>
+            {hasSimulated && <span className="text-[var(--color-partial)]"> · 1 planted</span>}
+          </span>
+
+          <Collapsible summary="How does the Judge work?">
+            <p className="max-w-2xl text-sm leading-relaxed text-[var(--color-fg-muted)]">
+              The <span className="font-semibold text-[var(--color-fg)]">Summarizer</span>{" "}
+              (Google&apos;s Gemini) drafted this. A different, independent model — the{" "}
+              <span className="font-semibold text-[var(--color-fg)]">Judge</span> (Meta&apos;s Llama
+              3.3, via Groq) — now checks every line against the call. Two models on purpose: an AI
+              grading its own work shares its own blind spots, so a separate model does the checking.
             </p>
-          </div>
+          </Collapsible>
+
           <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
             <SummaryGroups claims={summary} />
+          </div>
+
+          {hasSimulated && (
+            <p className="text-sm text-[var(--color-fg-faint)]">
+              The Judge hasn&apos;t been told which one is planted.
+            </p>
+          )}
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={check}
+              disabled={checking || generating}
+              className="rounded-xl bg-[var(--color-accent)] px-5 py-3 text-base font-semibold text-[#06222a] shadow-[0_0_24px_-6px_var(--color-accent)] transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {checking
+                ? "Checking…"
+                : hasSimulated
+                  ? "Run the Judge → catch the plant"
+                  : "Run the Judge →"}
+            </button>
+            {checking && <PipelineStages loading />}
           </div>
         </div>
       )}
