@@ -15,8 +15,10 @@ export function spanAppears(span: string, transcript: string): boolean {
 }
 
 export function verifyClaim(claim: JudgedClaim, transcript: string): VerifiedClaim {
+  // Spans that normalize to nothing (a bare emoji or punctuation like ";)") carry
+  // no verifiable text, so they can't sink a claim that also cites real wording.
+  const checkable = claim.citedSpans.filter((s) => normalize(s).length > 0);
   const verified =
-    claim.citedSpans.length > 0 &&
-    claim.citedSpans.every((s) => spanAppears(s, transcript));
+    checkable.length > 0 && checkable.every((s) => spanAppears(s, transcript));
   return { ...claim, verified, flagged: false };
 }

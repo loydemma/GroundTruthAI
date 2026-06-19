@@ -4,26 +4,36 @@ import { judgePromptV1Segments, judgePromptV2Segments } from "../src/lib/ui/judg
 import { JUDGE_PROMPT, JUDGE_PROMPT_V1 } from "../src/lib/pipeline/judge";
 
 describe("markPhrases", () => {
-  it("marks each phrase and leaves the rest plain", () => {
-    const segs = markPhrases("a big red dog", ["big", "dog"]);
+  it("tags each phrase with its group kind and leaves the rest plain", () => {
+    const segs = markPhrases("a big red dog", [{ phrases: ["big", "dog"], kind: "added" }]);
     expect(segs).toEqual([
-      { text: "a ", highlight: false },
-      { text: "big", highlight: true },
-      { text: " red ", highlight: false },
-      { text: "dog", highlight: true },
+      { text: "a ", kind: null },
+      { text: "big", kind: "added" },
+      { text: " red ", kind: null },
+      { text: "dog", kind: "added" },
     ]);
+  });
+
+  it("colors different groups with different kinds", () => {
+    const segs = markPhrases("safe danger", [
+      { phrases: ["safe"], kind: "added" },
+      { phrases: ["danger"], kind: "security" },
+    ]);
+    expect(segs.map((s) => s.kind)).toEqual(["added", null, "security"]);
   });
 
   it("always concatenates back to the original text", () => {
     const text = "the quick brown fox";
-    const joined = markPhrases(text, ["quick", "fox"])
+    const joined = markPhrases(text, [{ phrases: ["quick", "fox"], kind: "added" }])
       .map((s) => s.text)
       .join("");
     expect(joined).toBe(text);
   });
 
   it("throws when a phrase is absent so the display cannot drift", () => {
-    expect(() => markPhrases("hello world", ["missing"])).toThrow(/phrase not found/);
+    expect(() => markPhrases("hello world", [{ phrases: ["missing"], kind: "added" }])).toThrow(
+      /phrase not found/,
+    );
   });
 });
 
@@ -45,7 +55,11 @@ describe("judge prompt diff segments", () => {
   });
 
   it("highlights the rigid wording in v1 and the new guidance in v2", () => {
-    expect(judgePromptV1Segments().some((s) => s.highlight)).toBe(true);
-    expect(judgePromptV2Segments().some((s) => s.highlight)).toBe(true);
+    expect(judgePromptV1Segments().some((s) => s.kind === "problem")).toBe(true);
+    expect(judgePromptV2Segments().some((s) => s.kind === "added")).toBe(true);
+  });
+
+  it("highlights the security hardening as its own kind in v2", () => {
+    expect(judgePromptV2Segments().some((s) => s.kind === "security")).toBe(true);
   });
 });

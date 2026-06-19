@@ -41,4 +41,15 @@ describe("verifyClaim", () => {
   it("verified=false when there are no cited spans", () => {
     expect(verifyClaim({ ...base, citedSpans: [] }, transcript).verified).toBe(false);
   });
+  it("ignores an emoji/punctuation-only span so a real citation still verifies", () => {
+    // The ";)" normalizes to nothing and must not sink the verbatim span beside it.
+    const withEmoji = {
+      ...base,
+      citedSpans: [";)", "We will renew the contract next quarter"],
+    };
+    expect(verifyClaim(withEmoji, transcript).verified).toBe(true);
+  });
+  it("verified=false when every cited span normalizes to empty", () => {
+    expect(verifyClaim({ ...base, citedSpans: [";)", "!!!"] }, transcript).verified).toBe(false);
+  });
 });
