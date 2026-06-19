@@ -1,4 +1,14 @@
-import { pgTable, serial, text, integer, real, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  text,
+  integer,
+  real,
+  boolean,
+  timestamp,
+  jsonb,
+  primaryKey,
+} from "drizzle-orm/pg-core";
 
 export const transcripts = pgTable("transcripts", {
   id: serial("id").primaryKey(),
@@ -32,3 +42,16 @@ export const claims = pgTable("claims", {
   verified: boolean("verified").notNull(),
   flagged: boolean("flagged").notNull(),
 });
+
+// Durable per-IP daily quota for the paid Gemini route. Keyed by (ip, UTC day) so
+// the count survives reloads, cold starts, and multiple serverless instances —
+// unlike the in-memory anti-spam limiter, which is per-process and best-effort.
+export const dailyUsage = pgTable(
+  "daily_usage",
+  {
+    ip: text("ip").notNull(),
+    day: integer("day").notNull(), // UTC day index: floor(epochMs / 86_400_000)
+    count: integer("count").notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.ip, t.day] })],
+);

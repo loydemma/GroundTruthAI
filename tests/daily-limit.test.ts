@@ -1,34 +1,26 @@
 import { describe, it, expect } from "vitest";
-import { createDailyLimiter } from "../src/lib/rateLimit";
+import { utcDay, remainingFrom, DAILY_MAX_REQUESTS } from "../src/lib/db/dailyLimit";
 
 const DAY = 86_400_000;
 
-describe("createDailyLimiter", () => {
-  it("consumes down to the limit then blocks, reporting remaining", () => {
-    const l = createDailyLimiter(2);
-    expect(l.consume("ip", 0)).toEqual({ ok: true, remaining: 1 });
-    expect(l.consume("ip", 0)).toEqual({ ok: true, remaining: 0 });
-    expect(l.consume("ip", 0)).toEqual({ ok: false, remaining: 0 });
+// The atomic increment + cap lives in a single SQL statement (see consumeDaily),
+// so these cover the pure pieces: day bucketing and the remaining calculation.
+describe("utcDay", () => {
+  it("maps a timestamp to its UTC day index and rolls over at midnight", () => {
+    expect(utcDay(0)).toBe(0);
+    expect(utcDay(DAY - 1)).toBe(0);
+    expect(utcDay(DAY)).toBe(1);
+  });
+});
+
+describe("remainingFrom", () => {
+  it("subtracts used from the max", () => {
+    expect(remainingFrom(0)).toBe(DAILY_MAX_REQUESTS);
+    expect(remainingFrom(1, 25)).toBe(24);
+    expect(remainingFrom(25, 25)).toBe(0);
   });
 
-  it("peek does not consume", () => {
-    const l = createDailyLimiter(2);
-    expect(l.peek("ip", 0)).toEqual({ remaining: 2 });
-    l.consume("ip", 0);
-    expect(l.peek("ip", 0)).toEqual({ remaining: 1 });
-  });
-
-  it("resets at the next UTC day", () => {
-    const l = createDailyLimiter(1);
-    expect(l.consume("ip", 0).ok).toBe(true);
-    expect(l.consume("ip", DAY - 1).ok).toBe(false);
-    expect(l.consume("ip", DAY).ok).toBe(true);
-  });
-
-  it("tracks keys independently", () => {
-    const l = createDailyLimiter(1);
-    expect(l.consume("a", 0).ok).toBe(true);
-    expect(l.consume("b", 0).ok).toBe(true);
-    expect(l.consume("a", 0).ok).toBe(false);
+  it("never reports negative remaining", () => {
+    expect(remainingFrom(30, 25)).toBe(0);
   });
 });

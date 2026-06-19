@@ -1,12 +1,7 @@
 import { GeminiClient } from "@/lib/model/client";
 import { runGenerate } from "@/lib/pipeline/pipeline";
-import {
-  checkRateLimit,
-  tooManyRequests,
-  checkDailyLimit,
-  peekDailyLimit,
-  dailyLimitReached,
-} from "@/lib/rateLimit";
+import { checkRateLimit, tooManyRequests, clientIp } from "@/lib/rateLimit";
+import { consumeDaily, peekDaily, dailyLimitReached } from "@/lib/db/dailyLimit";
 import { modelErrorResponse } from "@/lib/model/errors";
 import { MAX_TRANSCRIPT_CHARS } from "@/lib/limits";
 
@@ -14,14 +9,14 @@ export const dynamic = "force-dynamic";
 
 // Lets the UI show remaining tries on load without spending one.
 export async function GET(req: Request) {
-  return Response.json(peekDailyLimit(req));
+  return Response.json(await peekDaily(clientIp(req)));
 }
 
 export async function POST(req: Request) {
   const rl = checkRateLimit(req);
   if (!rl.ok) return tooManyRequests(rl.retryAfter);
 
-  const daily = checkDailyLimit(req);
+  const daily = await consumeDaily(clientIp(req));
   if (!daily.ok) return dailyLimitReached();
 
   const { transcript } = (await req.json()) as { transcript: string };
