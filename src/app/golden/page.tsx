@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Collapsible } from "../components/Collapsible";
 import type { GoldenEvaluation, GoldenItemResult } from "@/lib/golden/evaluate";
+import { GOLDEN_SET, type GoldenItem } from "@/lib/golden/dataset";
 
 function verdictLabel(unsupported: boolean) {
   return unsupported ? (
@@ -100,6 +101,69 @@ export default function GoldenPage() {
         </button>
       </section>
 
+      {error && (
+        <p className="mt-4 rounded-lg border border-[var(--color-flagged)]/40 bg-[var(--color-flagged-bg)] px-3 py-2 text-sm text-[var(--color-flagged)]">
+          {error}
+        </p>
+      )}
+
+      {data && (
+        <div className="gt-fade-in mt-8">
+          <div className="rounded-2xl border border-[var(--color-grounded)]/40 bg-[var(--color-grounded-bg)] p-5 sm:p-6">
+            <div className="text-xl font-semibold tracking-tight text-[var(--color-grounded)] sm:text-2xl">
+              The Judge got {data.correctCount} of {data.total} right.
+            </div>
+            <p className="mt-1.5 text-base text-[var(--color-fg-muted)]">
+              It caught {data.score.tp} of {data.score.tp + data.score.fn} made-up claims, and
+              correctly cleared {data.score.tn} of {data.score.tn + data.score.fp} real ones.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-8">
+        <h2 className="text-lg font-semibold tracking-tight sm:text-xl">
+          The cases the Judge is tested on
+        </h2>
+        <p className="mt-1.5 max-w-2xl text-base text-[var(--color-fg-muted)]">
+          The Judge sees only the call and the claim, never which claims we planted or the right
+          answer. Click any row to read the full call.
+          {!data &&
+            " The first four columns are the test, set up in advance. The last two fill in when you press Grade the Judge."}
+        </p>
+        <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--color-border)]">
+          <table className="w-full border-collapse text-left text-sm">
+            <thead>
+              <tr className="border-b border-[var(--color-border)] text-[11px] uppercase tracking-wider text-[var(--color-fg-muted)]">
+                <th className="px-3 py-2.5 font-semibold">Call</th>
+                <th className="px-3 py-2.5 font-semibold">The claim</th>
+                <th className="px-3 py-2.5 font-semibold">Why it&apos;s a trap</th>
+                <th className="px-3 py-2.5 font-semibold">Should be</th>
+                <th className="border-l border-[var(--color-accent)]/30 bg-[var(--color-accent)]/10 px-3 py-2.5 font-semibold text-[var(--color-accent)]">
+                  Judge said
+                </th>
+                <th className="bg-[var(--color-accent)]/10 px-3 py-2.5 font-semibold text-[var(--color-accent)]">
+                  Result
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {GOLDEN_SET.map((item, i) => (
+                <FragmentRow
+                  key={i}
+                  item={item}
+                  result={data?.items[i] ?? null}
+                  loading={loading}
+                  i={i}
+                  open={openRows.has(i)}
+                  onToggle={() => toggleRow(i)}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <section className="mt-12 sm:mt-16">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
           The mechanics
@@ -156,80 +220,29 @@ export default function GoldenPage() {
           </Collapsible>
         </div>
       </section>
-
-      {error && (
-        <p className="mt-4 rounded-lg border border-[var(--color-flagged)]/40 bg-[var(--color-flagged-bg)] px-3 py-2 text-sm text-[var(--color-flagged)]">
-          {error}
-        </p>
-      )}
-
-      {data && (
-        <div className="gt-fade-in mt-8 space-y-6">
-          <div className="rounded-2xl border border-[var(--color-grounded)]/40 bg-[var(--color-grounded-bg)] p-5 sm:p-6">
-            <div className="text-xl font-semibold tracking-tight text-[var(--color-grounded)] sm:text-2xl">
-              The Judge got {data.correctCount} of {data.total} right.
-            </div>
-            <p className="mt-1.5 text-base text-[var(--color-fg-muted)]">
-              It caught {data.score.tp} of {data.score.tp + data.score.fn} made-up claims, and
-              correctly cleared {data.score.tn} of {data.score.tn + data.score.fp} real ones.
-            </p>
-          </div>
-
-          <div>
-            <h2 className="text-lg font-semibold tracking-tight sm:text-xl">
-              Every case, and how the Judge ruled
-            </h2>
-            <p className="mt-1.5 max-w-2xl text-base text-[var(--color-fg-muted)]">
-              The Judge saw only the call and the claim. It was never told which claims we planted
-              or what the right answer was. Click any row to read the full call it judged.
-            </p>
-            <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--color-border)]">
-              <table className="w-full border-collapse text-left text-sm">
-                <thead>
-                  <tr className="border-b border-[var(--color-border)] text-[11px] uppercase tracking-wider text-[var(--color-fg-muted)]">
-                    <th className="px-3 py-2.5 font-semibold">Call</th>
-                    <th className="px-3 py-2.5 font-semibold">The claim</th>
-                    <th className="px-3 py-2.5 font-semibold">Why it&apos;s a trap</th>
-                    <th className="px-3 py-2.5 font-semibold">Should be</th>
-                    <th className="px-3 py-2.5 font-semibold">Judge said</th>
-                    <th className="px-3 py-2.5 font-semibold">Result</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.items.map((it: GoldenItemResult, i) => {
-                    const open = openRows.has(i);
-                    return (
-                      <FragmentRow
-                        key={i}
-                        it={it}
-                        i={i}
-                        open={open}
-                        onToggle={() => toggleRow(i)}
-                      />
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 }
 
 function FragmentRow({
-  it,
+  item,
+  result,
+  loading,
   i,
   open,
   onToggle,
 }: {
-  it: GoldenItemResult;
+  item: GoldenItem;
+  result: GoldenItemResult | null;
+  loading: boolean;
   i: number;
   open: boolean;
   onToggle: () => void;
 }) {
-  const tone = it.correct ? "" : "bg-[var(--color-flagged-bg)]";
+  const tone = result && !result.correct ? "bg-[var(--color-flagged-bg)]" : "";
+  const pending = (
+    <span className="text-[var(--color-fg-faint)]">{loading ? "grading…" : "—"}</span>
+  );
   return (
     <>
       <tr className={`border-b border-[var(--color-border)] align-top ${open ? "" : "last:border-0"} ${tone}`}>
@@ -246,18 +259,24 @@ function FragmentRow({
             >
               ▸
             </span>
-            {it.scenario}
+            {item.scenario}
           </button>
         </td>
-        <td className="px-3 py-3 font-medium text-[var(--color-fg)]">{it.claimText}</td>
-        <td className="px-3 py-3 text-[var(--color-fg-muted)]">{it.whyTrap}</td>
-        <td className="whitespace-nowrap px-3 py-3">{verdictLabel(it.expectedUnsupported)}</td>
-        <td className="whitespace-nowrap px-3 py-3">{verdictLabel(it.predictedUnsupported)}</td>
-        <td className="whitespace-nowrap px-3 py-3">
-          {it.correct ? (
-            <span className="font-semibold text-[var(--color-grounded)]">✓</span>
+        <td className="px-3 py-3 font-medium text-[var(--color-fg)]">{item.claimText}</td>
+        <td className="px-3 py-3 text-[var(--color-fg-muted)]">{item.whyTrap}</td>
+        <td className="whitespace-nowrap px-3 py-3">{verdictLabel(item.trulyUnsupported)}</td>
+        <td className="whitespace-nowrap border-l border-[var(--color-accent)]/30 bg-[var(--color-accent)]/5 px-3 py-3">
+          {result ? verdictLabel(result.predictedUnsupported) : pending}
+        </td>
+        <td className="whitespace-nowrap bg-[var(--color-accent)]/5 px-3 py-3">
+          {result ? (
+            result.correct ? (
+              <span className="font-semibold text-[var(--color-grounded)]">✓</span>
+            ) : (
+              <span className="font-semibold text-[var(--color-flagged)]">✗ missed</span>
+            )
           ) : (
-            <span className="font-semibold text-[var(--color-flagged)]">✗ missed</span>
+            pending
           )}
         </td>
       </tr>
@@ -265,10 +284,10 @@ function FragmentRow({
         <tr id={`transcript-${i}`} className={`border-b border-[var(--color-border)] last:border-0 ${tone}`}>
           <td colSpan={6} className="px-3 pb-4 pt-0">
             <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
-              {it.scenario} — full call the Judge saw
+              {item.scenario} — full call the Judge saw
             </div>
             <pre className="mt-1.5 whitespace-pre-wrap font-mono text-sm leading-relaxed text-[var(--color-fg)]">
-              {it.transcript}
+              {item.transcript}
             </pre>
           </td>
         </tr>
