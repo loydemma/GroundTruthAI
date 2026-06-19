@@ -89,47 +89,22 @@ export default function GoldenPage() {
             Llama 3.3, via Groq) is a different model from the one that writes the summaries (Gemini),
             because the right way to grade an AI is with an independent one. This golden set has three
             support calls and five claims I already know the verdict for, most built to trip it up, and
-            the Judge has no idea which is which. Press the button and see how it does.
+            the Judge has no idea which is which. The gold dataset below is what it&apos;s tested on —
+            run it and see how it does.
           </p>
         </div>
-        <button
-          onClick={run}
-          disabled={loading}
-          className="mt-8 rounded-xl bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {loading ? "Grading the Judge…" : "Grade the Judge"}
-        </button>
       </section>
-
-      {error && (
-        <p className="mt-4 rounded-lg border border-[var(--color-flagged)]/40 bg-[var(--color-flagged-bg)] px-3 py-2 text-sm text-[var(--color-flagged)]">
-          {error}
-        </p>
-      )}
-
-      {data && (
-        <div className="gt-fade-in mt-8">
-          <div className="rounded-2xl border border-[var(--color-grounded)]/40 bg-[var(--color-grounded-bg)] p-5 sm:p-6">
-            <div className="text-xl font-semibold tracking-tight text-[var(--color-grounded)] sm:text-2xl">
-              The Judge got {data.correctCount} of {data.total} right.
-            </div>
-            <p className="mt-1.5 text-base text-[var(--color-fg-muted)]">
-              It caught {data.score.tp} of {data.score.tp + data.score.fn} made-up claims, and
-              correctly cleared {data.score.tn} of {data.score.tn + data.score.fp} real ones.
-            </p>
-          </div>
-        </div>
-      )}
 
       <div className="mt-8">
         <h2 className="text-lg font-semibold tracking-tight sm:text-xl">
-          The cases the Judge is tested on
+          Gold dataset — example cases
         </h2>
         <p className="mt-1.5 max-w-2xl text-base text-[var(--color-fg-muted)]">
           The Judge sees only the call and the claim, never which claims we planted or the right
-          answer. Click any row to read the full call.
+          answer. Click any row to read the full call. Click the button below to see how the Judge
+          performs with these examples.
           {!data &&
-            " The first four columns are the test, set up in advance. The last two fill in when you press Grade the Judge."}
+            " The first four columns are the test, set up in advance; the last two fill in when you run the set."}
         </p>
         <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--color-border)]">
           <table className="w-full border-collapse text-left text-sm">
@@ -163,6 +138,34 @@ export default function GoldenPage() {
           </table>
         </div>
       </div>
+
+      <button
+        onClick={run}
+        disabled={loading}
+        className="mt-6 rounded-xl bg-[var(--color-accent)] px-5 py-2.5 text-sm font-semibold text-[#06222a] transition hover:bg-[var(--color-accent-strong)] disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        {loading ? "Running the gold set…" : "Run the gold set"}
+      </button>
+
+      {error && (
+        <p className="mt-4 rounded-lg border border-[var(--color-flagged)]/40 bg-[var(--color-flagged-bg)] px-3 py-2 text-sm text-[var(--color-flagged)]">
+          {error}
+        </p>
+      )}
+
+      {data && (
+        <div className="gt-fade-in mt-6">
+          <div className="rounded-2xl border border-[var(--color-grounded)]/40 bg-[var(--color-grounded-bg)] p-5 sm:p-6">
+            <div className="text-xl font-semibold tracking-tight text-[var(--color-grounded)] sm:text-2xl">
+              The Judge got {data.correctCount} of {data.total} right.
+            </div>
+            <p className="mt-1.5 text-base text-[var(--color-fg-muted)]">
+              It caught {data.score.tp} of {data.score.tp + data.score.fn} made-up claims, and
+              correctly cleared {data.score.tn} of {data.score.tn + data.score.fp} real ones.
+            </p>
+          </div>
+        </div>
+      )}
 
       <section className="mt-12 sm:mt-16">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
@@ -241,7 +244,7 @@ function FragmentRow({
 }) {
   const tone = result && !result.correct ? "bg-[var(--color-flagged-bg)]" : "";
   const pending = (
-    <span className="text-[var(--color-fg-faint)]">{loading ? "grading…" : "—"}</span>
+    <span className="text-[var(--color-fg-faint)]">{loading ? "running…" : "—"}</span>
   );
   return (
     <>
