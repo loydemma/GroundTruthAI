@@ -32,7 +32,7 @@ export function JudgePromptCaseStudy() {
   return (
     <Collapsible
       summary={
-        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
+        <span className="gt-eyebrow text-[var(--color-accent)]">
           Where the Judge got it wrong, and how I fixed it
         </span>
       }
@@ -57,13 +57,13 @@ export function JudgePromptCaseStudy() {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-xl border border-[var(--color-flagged)]/30 bg-[var(--color-bg)] p-4">
-            <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-flagged)]">
+            <div className="mb-2 flex items-center gap-2 gt-label text-[var(--color-flagged)]">
               Prompt v1 <span className="font-normal text-[var(--color-fg-faint)]">before</span>
             </div>
             <PromptText segments={v1} />
           </div>
           <div className="rounded-xl border border-[var(--color-grounded)]/30 bg-[var(--color-bg)] p-4">
-            <div className="mb-2 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-grounded)]">
+            <div className="mb-2 flex flex-wrap items-center gap-2 gt-label text-[var(--color-grounded)]">
               Prompt v2 <span className="font-normal text-[var(--color-fg-faint)]">after</span>
               <span className="ml-auto inline-flex items-center gap-1 font-normal text-[var(--color-accent)]">
                 <span className="inline-block h-2 w-2 rounded-sm bg-[var(--color-accent)]" />
@@ -75,7 +75,7 @@ export function JudgePromptCaseStudy() {
         </div>
 
         <div className="space-y-3 rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/5 p-4">
-          <div className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)]">
+          <div className="gt-label text-[var(--color-accent)]">
             Security · the transcript is untrusted input
           </div>
           <p className="text-base leading-relaxed text-[var(--color-fg-muted)]">

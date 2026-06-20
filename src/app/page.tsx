@@ -127,7 +127,7 @@ export default function Home() {
       </header>
 
       <section className="gt-hero mt-10 sm:mt-12">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
+        <p className="gt-eyebrow text-[var(--color-accent)]">
           Faithfulness check for AI call summaries
         </p>
         <h1 className="mt-3 max-w-3xl text-3xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
@@ -157,7 +157,7 @@ export default function Home() {
 
       <div className="mt-7 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 sm:p-5">
         <div>
-          <span className="text-sm font-semibold uppercase tracking-wider text-[var(--color-fg-muted)]">
+          <span className="gt-step text-[var(--color-fg-muted)]">
             <span className="text-[var(--color-accent)]">1</span> · Add a call transcript
           </span>
           <p className="mt-2 max-w-2xl text-base leading-relaxed text-[var(--color-fg-muted)]">
@@ -240,7 +240,7 @@ export default function Home() {
 
       {summary && !result && (
         <div className="gt-fade-in mt-8 space-y-4">
-          <span className="block text-sm font-semibold uppercase tracking-wider text-[var(--color-fg-muted)]">
+          <span className="block gt-step text-[var(--color-fg-muted)]">
             AI summary
             <span className="text-[var(--color-fg-faint)]">
               {" · "}
@@ -291,7 +291,7 @@ export default function Home() {
           <VerdictBanner claims={result.claims} />
           <Collapsible
             summary={
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
+              <span className="gt-eyebrow text-[var(--color-accent)]">
                 All {result.claims.length} statements from the call
               </span>
             }

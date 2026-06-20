@@ -32,6 +32,33 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+/* Type roles — one class per uppercase text role so size/weight/tracking stay
+   consistent everywhere the role appears. Type only; pair with a color class. */
+.gt-eyebrow {
+  font-size: 0.75rem;   /* 12px — kicker above a heading / section label */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+.gt-step {
+  font-size: 0.875rem;  /* 14px — step header above a form section */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.gt-label {
+  font-size: 0.6875rem; /* 11px — micro-label, table header, caption */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.gt-tag {
+  font-size: 0.625rem;  /* 10px — uppercase status pill */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 @keyframes gt-fade-in {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }

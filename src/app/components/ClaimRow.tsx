@@ -35,7 +35,7 @@ export function ClaimRow({ claim }: { claim: VerifiedClaim }) {
         <span className="text-base font-medium leading-snug text-[var(--color-fg)]">
           {claim.text}
           {claim.simulated && (
-            <span className="ml-2 inline-flex items-center rounded-full border border-[var(--color-partial)]/50 bg-[var(--color-partial-bg)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-partial)]">
+            <span className="ml-2 inline-flex items-center rounded-full border border-[var(--color-partial)]/50 bg-[var(--color-partial-bg)] px-2 py-0.5 gt-tag text-[var(--color-partial)]">
               Planted
             </span>
           )}
@@ -52,7 +52,7 @@ export function ClaimRow({ claim }: { claim: VerifiedClaim }) {
           <p className="text-sm text-[var(--color-flagged)]">{noSourceReason(claim)}</p>
         ) : (
           <div className="space-y-1.5">
-            <p className="text-xs uppercase tracking-wider text-[var(--color-fg-muted)]">
+            <p className="gt-label text-[var(--color-fg-muted)]">
               from the call
             </p>
             {claim.citedSpans.map((s, i) => (

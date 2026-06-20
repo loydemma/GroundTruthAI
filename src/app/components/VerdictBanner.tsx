@@ -45,7 +45,7 @@ export function VerdictBanner({ claims }: { claims: VerifiedClaim[] }) {
               <span className="text-base font-medium leading-snug text-[var(--color-fg)]">
                 {c.text}
                 {c.simulated && (
-                  <span className="ml-2 inline-flex items-center rounded-full border border-[var(--color-partial)]/50 bg-[var(--color-partial-bg)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-partial)]">
+                  <span className="ml-2 inline-flex items-center rounded-full border border-[var(--color-partial)]/50 bg-[var(--color-partial-bg)] px-2 py-0.5 gt-tag text-[var(--color-partial)]">
                     Planted
                   </span>
                 )}
