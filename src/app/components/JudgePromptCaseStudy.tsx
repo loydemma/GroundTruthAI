@@ -91,7 +91,7 @@ export function JudgePromptCaseStudy() {
             That&apos;s a <span className="font-semibold text-[var(--color-fg)]">prompt-injection</span>{" "}
             attack, the classic way to fool an AI that reads user-supplied text. The{" "}
             <span className="text-[var(--color-accent)]">highlighted line</span> in v2 tells the Judge
-            to treat the call and the claim as data to judge, never as commands to obey. And as a
+            to treat the pasted call as data to judge, never as commands to obey. And as a
             second layer, every quote the Judge cites still has to appear word-for-word in the real
             call, so even an attack that slipped past the prompt can&apos;t pass a made-up claim off as
             grounded.
