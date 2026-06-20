@@ -8,7 +8,7 @@ export function SummaryGroups({ claims }: { claims: GeneratedClaim[] }) {
     <div className="space-y-5">
       {groups.map((g) => (
         <div key={g.type}>
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-accent)]">
+          <h3 className="gt-eyebrow text-[var(--color-accent)]">
             {CATEGORY_LABEL[g.type as ClaimType] ?? g.type}
           </h3>
           <ul className="mt-2 space-y-2">
@@ -21,7 +21,7 @@ export function SummaryGroups({ claims }: { claims: GeneratedClaim[] }) {
                   <span className="text-base font-semibold leading-snug text-[var(--color-partial)]">
                     {c.text}
                   </span>
-                  <span className="inline-flex shrink-0 items-center rounded-full bg-[var(--color-partial)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--color-bg)]">
+                  <span className="inline-flex shrink-0 items-center rounded-full bg-[var(--color-partial)] px-2 py-0.5 gt-tag text-[var(--color-bg)]">
                     Planted
                   </span>
                 </li>

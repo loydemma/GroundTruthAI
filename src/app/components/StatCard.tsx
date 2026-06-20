@@ -27,7 +27,7 @@ export function StatCard({
 }) {
   return (
     <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-      <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-fg-muted)]">
+      <div className="gt-label text-[var(--color-fg-muted)]">
         {label}
       </div>
       <div className={`mt-2 font-mono text-2xl font-semibold tabular-nums ${toneText[tone]}`}>

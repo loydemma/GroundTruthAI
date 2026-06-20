@@ -63,7 +63,7 @@ export default function GoldenPage() {
       </header>
 
       <section className="gt-hero mt-12 sm:mt-16">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
+        <p className="gt-eyebrow text-[var(--color-accent)]">
           Who checks the Judge?
         </p>
         <h1 className="mt-3 text-3xl font-bold leading-[1.1] tracking-tight sm:text-5xl">
@@ -109,7 +109,7 @@ export default function GoldenPage() {
         <div className="mt-4 overflow-x-auto rounded-2xl border border-[var(--color-border)]">
           <table className="w-full border-collapse text-left text-sm">
             <thead>
-              <tr className="border-b border-[var(--color-border)] text-[11px] uppercase tracking-wider text-[var(--color-fg-muted)]">
+              <tr className="border-b border-[var(--color-border)] gt-label text-[var(--color-fg-muted)]">
                 <th className="px-3 py-2.5 font-semibold">Call</th>
                 <th className="px-3 py-2.5 font-semibold">The claim</th>
                 <th className="px-3 py-2.5 font-semibold">Why it&apos;s a trap</th>
@@ -168,7 +168,7 @@ export default function GoldenPage() {
       )}
 
       <section className="mt-12 sm:mt-16">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
+        <p className="gt-eyebrow text-[var(--color-accent)]">
           The mechanics
         </p>
         <h2 className="mt-3 text-lg font-semibold tracking-tight sm:text-xl">
@@ -182,7 +182,7 @@ export default function GoldenPage() {
         <div className="mt-5 max-w-2xl">
           <Collapsible
             summary={
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-accent)]">
+              <span className="gt-eyebrow text-[var(--color-accent)]">
                 Under the hood
               </span>
             }
@@ -286,7 +286,7 @@ function FragmentRow({
       {open && (
         <tr id={`transcript-${i}`} className={`border-b border-[var(--color-border)] last:border-0 ${tone}`}>
           <td colSpan={6} className="px-3 pb-4 pt-0">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-accent)]">
+            <div className="gt-label text-[var(--color-accent)]">
               {item.scenario} — full call the Judge saw
             </div>
             <pre className="mt-1.5 whitespace-pre-wrap font-mono text-sm leading-relaxed text-[var(--color-fg)]">
