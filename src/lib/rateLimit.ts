@@ -42,7 +42,7 @@ export function checkRateLimit(req: Request): Outcome {
 // Standard 429 response for a blocked request.
 export function tooManyRequests(retryAfter: number): Response {
   return Response.json(
-    { error: "Too many requests — slow down and try again in a moment." },
+    { error: "Too many requests. Slow down and try again in a moment." },
     { status: 429, headers: { "Retry-After": String(retryAfter) } },
   );
 }

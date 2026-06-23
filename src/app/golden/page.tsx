@@ -89,15 +89,15 @@ export default function GoldenPage() {
             Llama 3.3, via Groq) is a different model from the one that writes the summaries (Gemini),
             because the right way to grade an AI is with an independent one. This golden set has three
             support calls and five claims I already know the verdict for, most built to trip it up, and
-            the Judge has no idea which is which. The gold dataset below is what it&apos;s tested on —
-            run it and see how it does.
+            the Judge has no idea which is which. The gold dataset below is what it&apos;s tested on.
+            Run it and see how it does.
           </p>
         </div>
       </section>
 
       <div className="mt-8">
         <h2 className="text-lg font-semibold tracking-tight sm:text-xl">
-          Gold dataset — example cases
+          Gold dataset: example cases
         </h2>
         <p className="mt-1.5 max-w-2xl text-base text-[var(--color-fg-muted)]">
           The Judge sees only the call and the claim, never which claims we planted or the right
@@ -287,7 +287,7 @@ function FragmentRow({
         <tr id={`transcript-${i}`} className={`border-b border-[var(--color-border)] last:border-0 ${tone}`}>
           <td colSpan={6} className="px-3 pb-4 pt-0">
             <div className="gt-label text-[var(--color-accent)]">
-              {item.scenario} — full call the Judge saw
+              {item.scenario}: full call the Judge saw
             </div>
             <pre className="mt-1.5 whitespace-pre-wrap font-mono text-sm leading-relaxed text-[var(--color-fg)]">
               {item.transcript}
