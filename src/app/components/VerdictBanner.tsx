@@ -64,7 +64,7 @@ export function VerdictBanner({ claims }: { claims: VerifiedClaim[] }) {
             </>
           ) : (
             <>
-              The Judge caught your planted claim — a known defect, proven caught. It also
+              The Judge caught your planted claim: a known defect, proven caught. It also
               flagged {realFlagged} other line{realFlagged === 1 ? "" : "s"} for review
               (above).
             </>

@@ -210,7 +210,7 @@ export default function Home() {
             <span className="mt-1.5 block max-w-2xl text-base leading-relaxed text-[var(--color-fg-muted)]">
               Modern AI rarely hallucinates on a clean call, which is good, but it makes a
               detector hard to prove. So plant a known false claim and watch the Judge catch
-              it. In short: inject a known defect to prove it works.
+              it.
             </span>
           </span>
         </label>
@@ -252,9 +252,9 @@ export default function Home() {
           <Collapsible summary="How does the Judge work?">
             <p className="max-w-2xl text-sm leading-relaxed text-[var(--color-fg-muted)]">
               The <span className="font-semibold text-[var(--color-fg)]">Summarizer</span>{" "}
-              (Google&apos;s Gemini) drafted this. A different, independent model — the{" "}
+              (Google&apos;s Gemini) drafted this. A different, independent model, the{" "}
               <span className="font-semibold text-[var(--color-fg)]">Judge</span> (Meta&apos;s Llama
-              3.3, via Groq) — now checks every line against the call. Two models on purpose: an AI
+              3.3, via Groq), now checks every line against the call. Two models on purpose: an AI
               grading its own work shares its own blind spots, so a separate model does the checking.
             </p>
           </Collapsible>
