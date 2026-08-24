@@ -44,3 +44,37 @@ npm install
 cp .env.example .env   # add your database URL and the two model API keys
 npm run dev
 ```
+
+## Access gate (private demo)
+
+The app ships with an **optional password gate** so it can be deployed but kept private
+until it's time to show it (e.g. right before an interview), instead of being torn down and
+redeployed — an idle serverless deploy costs ~$0, and tearing down would change the URL.
+
+It's a single switch, the `SITE_PASSWORD` env/secret:
+
+- **Blank/unset → gate dormant, site fully public** (default; zero behavior change).
+- **Set → visitors must enter the password.** They append `?key=<password>` once (or type it on
+  the prompt page); a cookie then remembers them. The gate covers pages *and* API routes.
+
+It's deliberately simple — obscurity to hide a portfolio demo, **not** real authentication, and it
+guards no sensitive data. Logic lives in `src/lib/siteGate.ts` (unit-tested); the request wrapper is
+`src/proxy.ts` (Next.js 16 "Proxy", formerly Middleware).
+
+**Toggle it:**
+
+```bash
+# Local: edit .env
+SITE_PASSWORD=somepass   # lock      |   SITE_PASSWORD=   (blank) → unlock
+
+# Production (AWS/SST) — takes effect on the next deploy:
+npx sst secret set SitePassword "somepass" --stage production   # lock
+npx sst secret set SitePassword "" --stage production           # unlock (go public)
+npm run deploy:aws
+```
+
+## Docs
+
+- [How the Judge prompt evolved](docs/judge-prompt-evolution.md) — why the prompt changed over
+  time: the v1 "strict/exact verbatim" false positive, the v2 meaning-vs-quote split, and how the
+  emoji and prompt-injection phrases each caused a new false positive that needed a follow-up fix.
